@@ -16,13 +16,24 @@ def create_folders():
 
 
 def make_low_light(img):
-    # Reduce brightness significantly (Gamma Correction)
-    gamma = random.uniform(2.5, 3.5)  # Higher gamma = darker
+    # 1. Reduce brightness (Gamma Correction)
+    # 2.5 to 3.5 is very dark. Try 1.5 to 2.0 if it's too dark to see anything.
+    gamma = random.uniform(1.5, 2.5)
     look_up_table = np.array([((i / 255.0) ** gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
     dark = cv2.LUT(img, look_up_table)
-    # Add some ISO noise (grain) which happens in dark
-    noise = np.random.normal(0, 5, dark.shape).astype(np.uint8)
-    return cv2.add(dark, noise)
+
+    # 2. Add realistic ISO noise
+    # We create noise, then use cv2.add weighted or clip it so it doesn't "wrap"
+    noise = np.zeros(dark.shape, np.int16)  # Use int16 to allow negative values temporarily
+    cv2.randn(noise, 0, 10)  # Generate random normal noise
+
+    # 3. Combine and Clip
+    # This ensures values stay between 0-255
+    noisy_dark = cv2.add(dark.astype(np.int16), noise)
+    final_img = np.clip(noisy_dark, 0, 255).astype(np.uint8)
+
+    return final_img
+
 
 
 def make_motion_blur(img):
@@ -76,4 +87,5 @@ def generate():
 
 
 if __name__ == "__main__":
+
     generate()
