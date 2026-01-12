@@ -35,21 +35,38 @@ def make_low_light(img):
     return final_img
 
 
-
 def make_motion_blur(img):
-    # Simulate camera shake
-    size = random.choice([7, 9, 11])  # Kernel size
-    kernel_motion_blur = np.zeros((size, size))
-    # Horizontal blur
-    kernel_motion_blur[int((size - 1) / 2), :] = np.ones(size)
-    kernel_motion_blur = kernel_motion_blur / size
-    return cv2.filter2D(img, -1, kernel_motion_blur)
+    # 1. Choose a random size (length of motion) and angle
+    size = random.choice([7, 9, 11, 13])
+    angle = random.uniform(0, 360)  # Any angle between 0 and 360 degrees
+
+    # 2. Create the base basic horizontal kernel
+    # (Just like the previous version)
+    kernel = np.zeros((size, size))
+    center = int((size - 1) / 2)
+    kernel[center, :] = 1
+
+    # 3. Rotate the kernel to the random angle
+    # Calculate the rotation matrix around the center point
+    M = cv2.getRotationMatrix2D((center, center), angle, 1.0)
+
+    # Apply the rotation to the kernel itself
+    # We use INTER_LINEAR to smooth the line edges when rotating
+    rotated_kernel = cv2.warpAffine(kernel, M, (size, size), flags=cv2.INTER_LINEAR)
+
+    # 4. Normalize the rotated kernel
+    # Crucial: After rotation and interpolation, the sum is no longer exactly 'size'.
+    # We must divide by the new sum to ensure image brightness doesn't change.
+    rotated_kernel = rotated_kernel / rotated_kernel.sum()
+
+    # 5. Apply filter
+    return cv2.filter2D(img, -1, rotated_kernel)
 
 
 def make_low_res(img):
     # Downscale then Upscale to simulate pixelation
     h, w = img.shape[:2]
-    scale = random.uniform(0.1, 0.25)  # Resize to 10-25% of original
+    scale = random.uniform(0.3, 0.4)  # Resize to 30-40% of original
     small = cv2.resize(img, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_LINEAR)
     # Resize back to original so the CNN can read it
     pixelated = cv2.resize(small, (w, h), interpolation=cv2.INTER_NEAREST)
@@ -62,7 +79,7 @@ def generate():
         return
 
     create_folders()
-    images = list(Path(SOURCE_DIR).glob("*/*.jpg")) + list(Path(SOURCE_DIR).glob("*.jpg"))
+    images = list(Path(SOURCE_DIR).glob("*.jpg"))
     print(f"Found {len(images)} normal images. Generating bad versions...")
 
     for img_path in images:
@@ -80,10 +97,10 @@ def generate():
         cv2.imwrite(f"{ROOT_DIR}/motion_blur/{filename}", blur)
 
         # 3. Generate Low Res
-        lowres = make_low_res(img)
-        cv2.imwrite(f"{ROOT_DIR}/low_res/{filename}", lowres)
+        lowers = make_low_res(img)
+        cv2.imwrite(f"{ROOT_DIR}/low_res/{filename}", lowers)
 
-    print("✅ Data Generation Complete! Check your data folders.")
+    print(" Data Generation Complete! Check your data folders.")
 
 
 if __name__ == "__main__":
