@@ -6,18 +6,17 @@ from sklearn.datasets import fetch_lfw_people
 # CONFIG
 # Where to save the "Good" images
 SAVE_DIR = "data/gate_dataset/normal"
-# How many images do you want? (50-100 is enough for this gate)
-NUM_IMAGES_TO_SAVE = 150
+NUM_IMAGES_TO_SAVE = 500
 
 
 def get_faces():
-    print("⏳ Downloading/Loading LFW dataset... (this might take a minute)")
+    print(" Downloading/Loading LFW dataset... (this might take a minute)")
 
     # This automatically downloads the data if you don't have it
     # min_faces_per_person=20 ensures we get clear, distinct faces
-    lfw_people = fetch_lfw_people(min_faces_per_person=20, resize=None)  # resize=None keeps original quality
+    lfw_people = fetch_lfw_people(min_faces_per_person=1, resize=None)  # resize=None keeps original quality
 
-    print(f"✅ Loaded {len(lfw_people.images)} faces.")
+    print(f" Loaded {len(lfw_people.images)} faces.")
     return lfw_people.images
 
 
@@ -30,7 +29,7 @@ def save_faces(images):
         os.remove(os.path.join(SAVE_DIR, f))
 
     count = 0
-    print(f"💾 Saving {NUM_IMAGES_TO_SAVE} images to {SAVE_DIR}...")
+    print(f" Saving {NUM_IMAGES_TO_SAVE} images to {SAVE_DIR}...")
 
     # Indices to pick random images
     indices = np.arange(len(images))
@@ -55,7 +54,7 @@ def save_faces(images):
         cv2.imwrite(filename, img_color)
         count += 1
 
-    print(f"🎉 Done! Saved {count} images.")
+    print(f" Done! Saved {count} images.")
 
 
 if __name__ == "__main__":
