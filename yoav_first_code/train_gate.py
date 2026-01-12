@@ -2,13 +2,15 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from sklearn.model_selection import train_test_split
 import numpy as np
 from torch.utils.data import Subset
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
 
-# Import your model
 from gate import SimpleGateCNN
 
 
@@ -158,6 +160,32 @@ def train_gate_manager(model, train_loader, valid_loader, device, epochs=10):
     return model
 
 
+def plot_confusion_matrix(model, loader, device, classes):
+    print("Generating Confusion Matrix...")
+    model.eval()
+    all_preds = []
+    all_labels = []
+
+    with torch.no_grad():
+        for images, labels in loader:
+            images = images.to(device)
+            outputs = model(images)
+            preds = outputs.argmax(dim=1)
+
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+
+    # Calculate Matrix
+    cm = confusion_matrix(all_labels, all_preds)
+
+    # Plot using Seaborn
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                xticklabels=classes, yticklabels=classes)
+    plt.xlabel('Predicted Label')
+    plt.ylabel('True Label')
+    plt.title('Confusion Matrix')
+    plt.show()
 # ----------------------------------------
 # 4. Main Execution
 # ----------------------------------------
@@ -182,7 +210,7 @@ def main():
         train_loader,
         valid_loader,
         device,
-        epochs=15
+        epochs=20
     )
 
     # 4. Save Results
@@ -191,5 +219,8 @@ def main():
     print(f"✅ Saved best model to: {model_path}")
 
 
+    # --- will tell you exactly where the model is stupid ---
+    classes = ['low_light', 'low_res', 'motion_blur', 'normal']
+    plot_confusion_matrix(model, valid_loader, device, classes)
 if __name__ == "__main__":
     main()
