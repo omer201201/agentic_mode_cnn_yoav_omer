@@ -12,29 +12,27 @@ class SimpleGateCNN(nn.Module):
     def __init__(self, dropout_prob=0.5):
         super(SimpleGateCNN, self).__init__()
 
-        # --- Block 1 ---
-        # Input: (Batch, 3, 64, 64)
-        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, padding=1)
-        self.bn1 = nn.BatchNorm2d(16)  # <--- NEW: Normalize the 16 channels
+        # --- Block 1 (Doubled: 16 -> 32) ---
+        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
+        self.bn1   = nn.BatchNorm2d(32)
 
-        # --- Block 2 ---
-        # Input: (Batch, 16, 32, 32)
-        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, padding=1)
-        self.bn2 = nn.BatchNorm2d(32)  # <--- NEW: Normalize the 32 channels
+        # --- Block 2 (Doubled: 32 -> 64) ---
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.bn2   = nn.BatchNorm2d(64)
 
-        # --- Block 3 ---
-        # Input: (Batch, 32, 16, 16)
-        self.conv3 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.bn3 = nn.BatchNorm2d(64)  # <--- NEW: Normalize the 64 channels
+        # --- Block 3 (Doubled: 64 -> 128) ---
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        self.bn3   = nn.BatchNorm2d(128)
 
         # Pooling layer (reused)
         self.pool = nn.MaxPool2d(2, 2)
 
         # --- Classification Head ---
-        # Flattened size: 64 channels * 8 height * 8 width
-        self.fc1 = nn.Linear(64 * 8 * 8, 128)
+        # 128 channels * 8 height * 8 width
+        # FC Neurons increased 128 -> 256
+        self.fc1 = nn.Linear(128 * 8 * 8, 256)
         self.dropout = nn.Dropout(p=dropout_prob)
-        self.fc2 = nn.Linear(128, 4)
+        self.fc2 = nn.Linear(256, 4)
 
     def forward(self, x):
         # Block 1: Conv -> BN -> ReLU -> Pool
