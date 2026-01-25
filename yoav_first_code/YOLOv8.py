@@ -1,153 +1,155 @@
-import json
 import cv2
 import torch
-import torch.nn as nn
-from torchvision import transforms, models
 from ultralytics import YOLO
+import time
 
+class FaceDetector:
+    def __init__(self, model_path="models/yolov8n-face.pt", conf_threshold=0.5):
+        """
+        Initialize the YOLOv8 Face detector.
+        """
+        # 1. Device Setup: Auto-select GPU (CUDA) for Jetson
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        print(f"[YOLO] Loading Face Model on {self.device}...")
 
-# ---------- 1. Build same classifier model as in training ----------
+        # 2. Load the specific Face Model
+        try:
+            self.model = YOLO(model_path)
+        except Exception as e:
+            print(f"[Error] Could not find model at {model_path}. Please check the path.")
+            raise e
 
-def build_id_model(num_classes=3, weights_path="models/id_classifier_resnet18.pt"):
-    model = models.resnet18(weights=None)
-    in_features = model.fc.in_features
-    model.fc = nn.Linear(in_features, num_classes)
-    state_dict = torch.load(weights_path, map_location="cpu")
-    model.load_state_dict(state_dict)
-    model.eval()
-    return model
+        self.conf_threshold = conf_threshold
 
+    def detect(self, frame, expand_ratio=0.20):
+        """
+        Input: Single image frame
+        Output: List of tuples (x1, y1, x2, y2, confidence)
+        expand_ratio: How much to expand the box (0.20 = 20% bigger)
+        """
+        # Run inference
+        results = self.model(frame, verbose=False)
 
-# ---------- 2. Preprocess face crop for the classifier ----------
+        detections = []
+        height_img, width_img, _ = frame.shape
 
-def get_preprocess_transform():
-    return transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225]
-        ),
-    ])
-
-
-# ---------- 3. Load YOLO face detector ----------
-
-def load_yolo_model():
-    # use face-trained YOLO if you have one; otherwise generic YOLO and treat detected person area as face
-    # example: "yolov8n-face.pt" or "yolov8n.pt"
-    model = YOLO("yolov8n.pt")  # change to your face model if available
-    return model
-
-
-# ---------- 4. Inference loop ----------
-
-def main():
-    # 1. Load class mapping
-    with open("models/class_mapping.json", "r") as f:
-        class_to_idx = json.load(f)
-    idx_to_class = {v: k for k, v in class_to_idx.items()}
-
-    # 2. Load models
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    id_model = build_id_model(num_classes=len(class_to_idx))
-    id_model.to(device)
-
-    yolo_model = load_yolo_model()
-    preprocess = get_preprocess_transform()
-
-    # 3. Open camera
-    cap = cv2.VideoCapture(0)  # adjust index or use RTSP/CSI pipeline
-
-    if not cap.isOpened():
-        print("Error: Could not open camera.")
-        return
-
-    print("Starting real-time face identification (Yoav / Omer / Unknown)... Press 'q' to quit.")
-
-    CONF_THRESHOLD = 0.5
-    ID_THRESHOLD = 0.7  # min prob to accept Yoav/Omer, otherwise Unknown
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            print("Failed to grab frame.")
-            break
-
-        # 4. Run YOLO inference
-        results = yolo_model(frame, verbose=False)
-
-        # We assume first result (batch size 1)
-        detections = results[0].boxes
-
-        for box in detections:
-            cls_id = int(box.cls[0].item())
+        for box in results[0].boxes:
             conf = float(box.conf[0].item())
 
-            # If using generic YOLO, often class 0 is "person"
-            # You might want to filter only person / face class
-            # Here we assume we treat any detection as candidate face:
-            if conf < CONF_THRESHOLD:
-                continue
+            if conf >= self.conf_threshold:
+                # 1. Get original tight coordinates
+                x1, y1, x2, y2 = box.xyxy[0].int().tolist()
 
-            x1, y1, x2, y2 = box.xyxy[0].int().tolist()
+                # 2. Calculate the expansion amount
+                box_width = x2 - x1
+                box_height = y2 - y1
 
-            # Clip coordinates to frame size
-            h, w, _ = frame.shape
-            x1 = max(0, min(x1, w - 1))
-            x2 = max(0, min(x2, w - 1))
-            y1 = max(0, min(y1, h - 1))
-            y2 = max(0, min(y2, h - 1))
+                # Expand horizontally and vertically
+                x_pad = int(box_width * expand_ratio)
+                y_pad = int(box_height * expand_ratio)
 
-            # 5. Crop face region
-            face_crop = frame[y1:y2, x1:x2]
+                # 3. Apply expansion (and ensure we don't go outside the image)
+                x1 = max(0, x1 - x_pad)
+                y1 = max(0, y1 - y_pad)
+                x2 = min(width_img, x2 + x_pad)
+                y2 = min(height_img, y2 + y_pad)
 
-            if face_crop.size == 0:
-                continue
+                # 3. CROP THE FACE
+                # Note: copy() is important so we don't modify the original frame
+                face_crop = frame[y1:y2, x1:x2].copy()
 
-            # BGR -> RGB
-            face_rgb = cv2.cvtColor(face_crop, cv2.COLOR_BGR2RGB)
+                # 4. Save everything
+                detections.append({
+                    "crop": face_crop,  # The image for the Gate
+                    "coords": (x1, y1, x2, y2),  # Location for drawing
+                    "conf": conf
+                })
 
-            # 6. Preprocess and run ID classifier
-            face_tensor = preprocess(face_rgb).unsqueeze(0).to(device)  # shape: [1, 3, 224, 224]
-
-            with torch.no_grad():
-                logits = id_model(face_tensor)
-                probs = torch.softmax(logits, dim=1)[0]
-                best_prob, best_idx = torch.max(probs, dim=0)
-
-            best_prob = float(best_prob.item())
-            best_idx = int(best_idx.item())
-            label_name = idx_to_class[best_idx]
-
-            # 7. Apply ID threshold – if confidence low, mark as unknown
-            if best_prob < ID_THRESHOLD or label_name == "other":
-                display_label = "Unknown"
-            else:
-                # translate internal class name to nice display
-                if label_name.lower() == "yoav":
-                    display_label = "Yoav"
-                elif label_name.lower() == "omer":
-                    display_label = "Omer"
-                else:
-                    display_label = "Unknown"
-
-            # 8. Draw bounding box and label
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            text = f"{display_label} ({best_prob:.2f})"
-            cv2.putText(frame, text, (x1, y1 - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-
-        # 9. Show result frame
-        cv2.imshow("Face ID - Yoav / Omer / Unknown", frame)
-
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord('q'):
-            break
-
-    cap.release()
-    cv2.destroyAllWindows()
+        return detections
 
 
+# --- Helper Function for Camera Setup ---
+def get_camera(width=1280, height=720):
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        print("[Error] Could not open camera.")
+        return None
+
+    # Force C270 to HD Mode
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+    return cap
+
+'''
+# --- Main Block for Testing ---
 if __name__ == "__main__":
-    main()
+    print("Testing Face Detector...")
+
+    # NOTE: Ensure 'yolov8n-face.pt' is in the 'models' folder,
+    # or update the path below to where you saved it.
+    try:
+        detector = FaceDetector(model_path="models/yolov8n-face.pt")
+        cap = get_camera()
+
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            # DETECT
+            faces = detector.detect(frame)
+
+            # DRAW
+            for (x1, y1, x2, y2, conf) in faces:
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.putText(frame, f"Face: {conf:.2f}", (x1, y1 - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+            cv2.imshow("YOLO Face Debug", frame)
+            if cv2.waitKey(1) == ord('q'):
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
+    except Exception as e:
+        print(e)
+'''
+# --- Main Block for Testing with an Image ---
+# --- Test Block ---
+if __name__ == "__main__":
+    print("Testing Face Detector + Cropping...")
+
+    try:
+        # Ensure path is correct
+        detector = FaceDetector(model_path="models/yolov8n-face.pt")
+
+        # Load test image
+        frame = cv2.imread("test_image.JPG")
+        if frame is None:
+            print("Error: test_face.jpg not found.")
+            exit()
+
+        # Run Detection
+        results = detector.detect(frame)
+        print(f"Found {len(results)} faces.")
+
+        for i, data in enumerate(results):
+            # 1. Get the data
+            face_img = data["crop"]
+            coords = data["coords"]
+
+            # 2. Show the CROPPED face (What the Gate will see)
+            cv2.imshow(f"Face_Crop_{i}", face_img)
+
+            # 3. Draw on original frame (Visualization)
+            cv2.rectangle(frame, (coords[0], coords[1]), (coords[2], coords[3]), (0, 255, 0), 2)
+
+        # Show original frame with boxes
+        cv2.imshow("Full Frame", frame)
+
+        print("Press any key to exit...")
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+    except Exception as e:
+        print(e)
