@@ -6,16 +6,15 @@ import os
 import numpy as np
 import torchvision.transforms as transforms
 from PIL import Image
-import YOLOv8
-
 
 # ==========================================
-# 1. The Neural Network (Same as before)
+# 1. The Neural Network
 # ==========================================
 class SimpleGateCNN(nn.Module):
     """
     Lightweight CNN with Batch Normalization.
     Structure: [Conv -> BN -> ReLU -> Pool] x 3 -> Flatten -> FC -> Dropout -> FC
+    built as a hierarchical feature extractor
     """
 
     def __init__(self, dropout_prob=0.1):
@@ -33,22 +32,22 @@ class SimpleGateCNN(nn.Module):
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
         self.bn3   = nn.BatchNorm2d(128)
 
-        # Pooling layer (reused)
+        # Pooling layer shrink the image size while keeping important features
         self.pool = nn.MaxPool2d(2, 2)
 
         # --- Classification Head ---
         # 128 channels * 8 height * 8 width
         # FC Neurons increased 128 -> 256
-        self.fc1 = nn.Linear(128 * 16 * 16, 256) # Updated for 128x128 input
+        self.fc1 = nn.Linear(128 * 16 * 16, 256)
         self.dropout = nn.Dropout(p=dropout_prob)
         self.fc2 = nn.Linear(256, 4)
 
     def forward(self, x):
         # Block 1: Conv -> BN -> ReLU -> Pool
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = F.relu(x)
-        x = self.pool(x)
+        x = self.conv1(x)   # find patterns
+        x = self.bn1(x)     # to keep training stable
+        x = F.relu(x)       # non-linear activation function
+        x = self.pool(x)    # reduces the dimensions of the image by half each time
 
         # Block 2: Conv -> BN -> ReLU -> Pool
         x = self.conv2(x)
@@ -88,7 +87,7 @@ class AdaptiveGate:
             except:
                 print("️ Warning: Could not load weights. Using random weights.")
 
-        # Transform for the CNN (The Gate sees 64x64 regardless of input size)
+        # Transform for the CNN (The Gate sees 128X128 regardless of input size)
         self.transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
@@ -115,6 +114,7 @@ class AdaptiveGate:
         x_off = (target_size - new_w) // 2
         y_off = (target_size - new_h) // 2
 
+        #You "paste" the resized face into that specific black area.
         canvas[y_off:y_off + new_h, x_off:x_off + new_w] = resized
         return canvas
 
@@ -131,11 +131,11 @@ class AdaptiveGate:
         if h < 30 or w < 30:
             return "low_res"
 
-        # --- STEP 1: Apply Smart Resizing (Letterbox) ---
-        # We resize to 64x64 because that's what the model expects
+        # STEP 1: Apply Smart Resizing
+        # We resize to 128x128 because that's what the model expects
         processed_face = self.resize_with_padding(face_crop, target_size=128)
 
-        # --- STEP 2: Convert to PyTorch format ---
+        #  STEP 2: Convert to PyTorch format
         img_rgb = cv2.cvtColor(processed_face, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(img_rgb)
 
@@ -144,51 +144,45 @@ class AdaptiveGate:
         # --- STEP 3: Ask the Brain ---
         with torch.no_grad():
             outputs = self.model(input_tensor)
-            _, predicted_idx = torch.max(outputs, 1)
+            conf, predicted_idx = torch.max(outputs, 1)
             predicted_class = self.classes[predicted_idx.item()]
+            # Convert to percentage (e.g., 98.5)
+            confidence_score = conf.item() * 100
 
-        return predicted_class
-
-    # ==========================================
-    # 3. Simple Test Block
-    # ==========================================
+        return  confidence_score,predicted_class
 
 
 # ==========================================
-# 3. Test Block (Run this file directly to test)
+# 3. Test Block
 # ==========================================
 def main():
-    print("--- 🚀 Starting Full Pipeline Test ---")
+    print("---  Starting gate Test ---")
 
     # 1. Setup Paths
-    # Adjust this path to point to your 'yoav' folder
-    folder_path = os.path.join(r"C:/Users/yoavt/PycharmProjects/final_projact/data/gate_dataset/test")
+    # Adjust this path to point to your 'test' folder
+    folder_path = os.path.join(r"C:\Users\Your0124\pycharm_project_test\data\valid\yoav")
 
-    # 2. Initialize Agents (Load them ONCE)
 
     try:
-        # Load YOLO
-
-        # Load Gate (Ensure you fixed the class list order in gate.py!)
+        # Load Gate
         gate = AdaptiveGate(model_path="models/gate_model_best.pth")
-        print(" Agents Loaded.")
     except Exception as e:
         print(f" Error loading models: {e}")
         return
 
-    # 3. Get Images
+    # 2. Get Images
     if not os.path.exists(folder_path):
         print(f" Folder not found: {folder_path}")
         return
 
     image_files = [f for f in os.listdir(folder_path) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-    print(f"[2/3] Found {len(image_files)} images to test.\n")
+    print(f" Found {len(image_files)} images to test.\n")
 
-    # 4. Processing Loop
+    # 3. Processing Loop
     results = {'normal': 0, 'low_light': 0, 'low_res': 0, 'motion_blur': 0}
 
-    print(f"{'FILENAME':<25} | {'FACE SIZE':<15} | {'GATE DECISION'}")
-    print("-" * 60)
+    print(f"{'FILENAME':<25} | {'FACE SIZE':<15}| {'SCORE':<15}| {'GATE DECISION'}")
+    print("-" * 80)
 
     for filename in image_files:
         full_path = os.path.join(folder_path, filename)
@@ -199,21 +193,19 @@ def main():
 
         # --- STEP B: GATE CLASSIFICATION ---
         # The Gate now sees ONLY the face, no background noise
-        decision = gate.process(img)
+        confidence_score,decision = gate.process(img)
 
         # Update Stats
         results[decision] += 1
 
-        print(f"{filename:<25} | {f'{w}x{h}':<15} | {decision}")
+        print(f"{filename:<25} | {f'{w}x{h}':<15}| {confidence_score:<15.2f}| {decision}")
 
-    # 5. Final Report
+    # 4. Final Report
     print("\n" + "=" * 30)
     print(" FINAL RESULTS")
     print("=" * 30)
     for category, count in results.items():
         print(f"{category.title()}: {count}")
-    print("=" * 30)
-
 
 if __name__ == "__main__":
     main()
