@@ -3,39 +3,59 @@ import numpy as np
 import os
 
 class MotionBlurAgent:
-    def __init__(self, amount=1.5, threshold=0):
-        """
-        Initializes the Deblurring Agent using a Gaussian Unsharp Mask.
-        This is more natural than a standard kernel for facial features.
-        """
-        self.amount = amount
-        self.threshold = threshold
+    def __init__(self, blur_threshold=100.0):
+
+        #Initializes the Deblurring Agent using a Gaussian Unsharp Mask.
+        self.blur_threshold = blur_threshold  # Lower = blurrier
+
+    def get_blur_score(self, face_crop):
+        # The Laplacian operator calculates the 2nd derivative of the image
+        # This highlights regions of rapid intensity change (edges)
+        gray = cv2.cvtColor(face_crop, cv2.COLOR_BGR2GRAY)
+
+        return cv2.Laplacian(gray, cv2.CV_64F).var()
 
     def process(self, face_crop):
         if face_crop is None or face_crop.size == 0:
             return face_crop
 
-        # 1. Create a blurred version of the image (Gaussian)
-        # This acts as a low-pass filter
-        blurred = cv2.GaussianBlur(face_crop, (5, 5), 1.0)
+        # 1. Measure the blur score
+        score = self.get_blur_score(face_crop)
+        print(f"Blur Score: {score:.2f}")
 
-        # 2. Subtract the blur from the original to get the 'details'
-        # sharpened = original + (original - blurred) * amount
-        sharpened = cv2.addWeighted(face_crop, 1.0 + self.amount, blurred, -self.amount, 0)
+        # 2. Check if fix is needed
+        if score < self.blur_threshold:
+            # DYNAMIC CALCULATION:
+            # We want 'amount' to increase as 'score' decreases.
+            # Example: if threshold is 100 and score is 20, we need a lot of sharpening.
+            # If score is 80, we only need a little bit.
 
-        return sharpened
+            # This formula scales amount based on the 'gap' between threshold and score
+            raw_amount = (self.blur_threshold / max(score, 1.0)) * 0.5
+            dynamic_amount = min(raw_amount, 2.5)
+
+            print(f"Applying Dynamic Sharpness: {dynamic_amount:.2f}")
+
+            # 3. Apply the fix using the dynamic amount
+            blurred = cv2.GaussianBlur(face_crop, (5, 5), 1.0)
+            # Result = Original + (Amount X Details).
+            sharpened = cv2.addWeighted(face_crop, 1.0 + dynamic_amount, blurred, -dynamic_amount, 0)
+            return sharpened
+
+        print("Image is sharp enough. No fix applied.")
+        return face_crop
 
 def main():
-    print("--- 💨 Testing Motion Blur Agent on Real Data ---")
+    print("---  Testing Motion Blur Agent on Real Data ---")
 
     # 1. Initialize the Agent
-    agent = MotionBlurAgent(amount=1.2)
+    agent = MotionBlurAgent()
 
     # 2. Path to your REAL blurry image
-    img_path = "data/gate_dataset/train/motion_blur/00297.png"
+    img_path = r"C:\Users\Your0124\pycharm_project_test\data\train\yoav\IMG_1567 - Copy.jpg"
 
     if not os.path.exists(img_path):
-        print(f"❌ Error: Image not found at {img_path}")
+        print(f" Error: Image not found at {img_path}")
         return
 
     # 3. Load the real blurry image
@@ -58,7 +78,7 @@ def main():
     # Stack Side-by-Side
     comparison = np.hstack((display_blurry, display_fixed))
 
-    print("✅ Displaying results... (Press any key to close)")
+    print(" Displaying results... (Press any key to close)")
     cv2.imshow("Real Motion Blur Correction", comparison)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
