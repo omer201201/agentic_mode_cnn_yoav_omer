@@ -10,19 +10,24 @@ class DynamicLowLightAgent:
     def _get_dynamic_params(self, l_channel):
         avg_brightness = np.mean(l_channel)
 
-        # We've softened these to prevent the "washed out" look
-        if avg_brightness < 40:
-            clip_limit, gamma, denoise = 2.0, 0.8, 7
+        # handel for different dark images
+        print("avg_brightness:", avg_brightness) # test to see the avg_brightness
+        if avg_brightness < 20:
+            clip_limit, gamma, denoise = 6.0, 0.80, 10
+        elif avg_brightness < 30:
+            clip_limit, gamma, denoise = 5.0, 0.85, 10
+        elif avg_brightness < 40:
+            clip_limit, gamma, denoise =  3.0, 0.85, 7
         elif avg_brightness < 80:
-            clip_limit, gamma, denoise = 1.2, 0.9, 4
+            clip_limit, gamma, denoise = 1.5, 0.9, 4
         else:
-            clip_limit, gamma, denoise = 0.8, 1.0, 0
+            clip_limit, gamma, denoise = 0, 1.0, 0
 
         return clip_limit, gamma, denoise
 
     def process(self, image):
         if image is None: return None
-
+        #LAB - format for allows the agent to isolate the L (Lightness) channel
         lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
         l, a, b = cv2.split(lab)
 
@@ -48,15 +53,13 @@ class DynamicLowLightAgent:
         return final_bgr
 
 def main():
-        print("--- 🌑 Testing Low Light Agent ---")
+        print("---  Testing Low Light Agent ---")
 
         # 1. Initialize the Agent
-        # You can tweak 'clip_limit' (Try 2.0, 3.0, or 4.0) to see what looks best.
         agent = DynamicLowLightAgent()
 
         # 2. Load a dark image
-        # CHANGE THIS PATH to one of your real dark images from the 'yoav' folder
-        img_path = "data/gate_dataset/train/low_light/00257.png"
+        img_path = r"C:\Users\Your0124\pycharm_project_test\data\valid\yoav\1_image.jpg"
 
         if not os.path.exists(img_path):
             print(f" Error: Image not found at {img_path}")
