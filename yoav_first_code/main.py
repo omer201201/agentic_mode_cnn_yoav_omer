@@ -2,13 +2,14 @@ import cv2
 import torch
 import numpy as np
 from YOLOv8 import FaceDetector
-from ResNet import build_model, LetterboxResize  # Using your padded architecture
+from ResNet import build_model #LetterboxResize   Using your padded architecture
 from low_light_agent import DynamicLowLightAgent
 from motion_blur_agent import MotionBlurAgent
 from low_res_agent import SuperResAgent
 import json
+from generate_data.generate_data_for_gate import letterbox_resize
 
-# --- ⚙️ CONFIGURATION ---
+# --- ⚙ CONFIGURATION ---
 MODEL_PATHS = {
     "yolo": "models/yolov8n-face.pt",
     "resnet": "models/id_classifier_resnet18.pt",
@@ -20,7 +21,7 @@ MODEL_PATHS = {
 class IntegratedGate:
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"🚀 Initializing System on: {self.device}")
+        print(f" Initializing System on: {self.device}")
 
         # 1. Initialize Face Detector (YOLOv8)
         self.detector = FaceDetector(model_path=MODEL_PATHS["yolo"])
@@ -39,7 +40,7 @@ class IntegratedGate:
         self.super_res_agent = SuperResAgent(model_name=MODEL_PATHS["sr_pb"])
 
         # Standards
-        self.letterbox = LetterboxResize(target_size=224)
+        self.letterbox = letterbox_resize(target_size=224)
         self.resnet_tfms = torch.nn.Sequential(
             # Standard ResNet-18 Normalization
         )
