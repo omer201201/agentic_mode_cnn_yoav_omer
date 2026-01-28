@@ -1,10 +1,7 @@
 import os
 import json
-import numpy as np
-import cv2
 from pathlib import Path
 from collections import Counter
-from PIL import Image
 
 import torch
 import torch.nn as nn
@@ -15,192 +12,288 @@ from torchvision.models import ResNet18_Weights
 
 
 # ----------------------------------------
-# 1. Padding Helper (Letterboxing)
-# ----------------------------------------
-class LetterboxResize:
-    """
-    Custom transform to resize image with padding (letterboxing)
-    to maintain aspect ratio and prevent squashing.
-    """
-
-    def __init__(self, target_size=224):
-        self.target_size = target_size
-
-    def __call__(self, img):
-        # Convert PIL to OpenCV format
-        img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-
-        h, w = img_cv.shape[:2]
-        scale = min(self.target_size / h, self.target_size / w)
-        new_w, new_h = int(w * scale), int(h * scale)
-
-        resized = cv2.resize(img_cv, (new_w, new_h), interpolation=cv2.INTER_AREA)
-
-        canvas = np.zeros((self.target_size, self.target_size, 3), dtype=np.uint8)
-        x_offset = (self.target_size - new_w) // 2
-        y_offset = (self.target_size - new_h) // 2
-        canvas[y_offset:y_offset + new_h, x_offset:x_offset + new_w] = resized
-
-        # Convert back to PIL for remaining transforms
-        return Image.fromarray(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
-
-
-# ----------------------------------------
-# 2. Data Loading & Transforms
+# Data
 # ----------------------------------------
 def get_dataloaders(data_dir: str, batch_size: int = 32, num_workers: int = 2):
-    # Same mean/std as pre-trained weights
-    mean = ResNet18_Weights.IMAGENET1K_V1.transforms().mean
-    std = ResNet18_Weights.IMAGENET1K_V1.transforms().std
+    """
+    Expects:
+      data/train/<class_name>/*.jpg
+      data/valid/<class_name>/*.jpg
+    """
 
-    # UPDATED: Added LetterboxResize to prevent squashing
+    # Mild augmentations (better for face-ID style classification)
     train_tfms = transforms.Compose([
-        LetterboxResize(target_size=224),
+        #ResNet expects 224x224 inputs
+        transforms.Resize((224, 224)),
         transforms.RandomHorizontalFlip(p=0.5),
-        transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.10, hue=0.05),  # Increased for robustness
+        transforms.ColorJitter(brightness=0.10, contrast=0.10, saturation=0.05, hue=0.02),
         transforms.ToTensor(),
-        transforms.Normalize(mean=mean, std=std),
+        # values to match statistics of data the model was originally trained on
+        transforms.Normalize(mean=ResNet18_Weights.IMAGENET1K_V1.transforms().mean,
+                             std=ResNet18_Weights.IMAGENET1K_V1.transforms().std),
     ])
 
     valid_tfms = transforms.Compose([
-        LetterboxResize(target_size=224),
+        transforms.Resize((224, 224)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=mean, std=std),
+        transforms.Normalize(mean=ResNet18_Weights.IMAGENET1K_V1.transforms().mean,
+                             std=ResNet18_Weights.IMAGENET1K_V1.transforms().std),
     ])
-
+    # assigns labels to each folder
     train_ds = datasets.ImageFolder(root=os.path.join(data_dir, "train"), transform=train_tfms)
     valid_ds = datasets.ImageFolder(root=os.path.join(data_dir, "valid"), transform=valid_tfms)
 
+    # Ensure identical mapping
     if train_ds.class_to_idx != valid_ds.class_to_idx:
-        raise ValueError("Class mappings do not match between train and valid folders.")
+        raise ValueError(
+            f"Train and valid class_to_idx differ:\n"
+            f"train: {train_ds.class_to_idx}\n"
+            f"valid: {valid_ds.class_to_idx}"
+        )
 
-    # Sampler to handle dataset imbalance (e.g., more 'Other' than 'Yoav')
-    train_counts = Counter(train_ds.targets)
+    # Prints counts per class ( useful to spot imbalance)
+    train_counts = Counter(train_ds.targets) #counts number of pictures
+    valid_counts = Counter(valid_ds.targets)
+    idx_to_class = {v: k for k, v in train_ds.class_to_idx.items()}
+    print("Train counts:", {idx_to_class[i]: train_counts[i] for i in sorted(train_counts)})
+    print("Valid counts:", {idx_to_class[i]: valid_counts[i] for i in sorted(valid_counts)})
+
+    # Weighted sampler for imbalanced datasets
+    # weight per sample = 1 / count(class)
     class_counts = torch.tensor([train_counts[i] for i in range(len(train_ds.classes))], dtype=torch.float)
     class_weights = 1.0 / class_counts
     sample_weights = class_weights[torch.tensor(train_ds.targets, dtype=torch.long)]
     sampler = WeightedRandomSampler(weights=sample_weights, num_samples=len(sample_weights), replacement=True)
 
-    train_loader = DataLoader(train_ds, batch_size=batch_size, sampler=sampler, num_workers=num_workers,
-                              pin_memory=True)
-    valid_loader = DataLoader(valid_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
+    # Definning the way in which the model gets the data.
+    train_loader = DataLoader(   #
+        train_ds,
+        batch_size=batch_size,
+        sampler=sampler,          # use sampler instead of shuffle
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True
+    )
+
+    valid_loader = DataLoader(
+        valid_ds,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True
+    )
 
     return train_loader, valid_loader, train_ds.class_to_idx
 
 
 # ----------------------------------------
-# 3. Model & Training Components
+# Model
 # ----------------------------------------
 def build_model(num_classes: int):
+    # Use official pretrained weights
     model = models.resnet18(weights=None)
-    # Load your local pre-trained weights
-    state_dict = torch.load("models/resnet18-f37072fd.pth", map_location="cpu")
+    state_dict = torch.load("/models/resnet18-f37072fd.pth", map_location="cpu")
     model.load_state_dict(state_dict)
 
-    # Modify the final Fully Connected layer for Yoav/Omer/Other
+    # Replace classifier
     in_features = model.fc.in_features
     model.fc = nn.Linear(in_features, num_classes)
     return model
 
 
 def set_trainable_params(model: nn.Module, phase: int):
+    """
+    phase 1: train only fc (linear probing)
+    phase 2: fine-tune layer4 + fc
+    """
+    # Phase 1: Freeze almost everything
     for p in model.parameters():
         p.requires_grad = False
+
+    # Always train fc ( layer output)
     for p in model.fc.parameters():
         p.requires_grad = True
+
+    # Phase 2: Unfreeze the last block(layer4)
     if phase >= 2:
-        # Fine-tune the deeper features for face recognition
         for p in model.layer4.parameters():
             p.requires_grad = True
 
 
 def get_optimizer(model: nn.Module, phase: int):
-    lr = 1e-3 if phase == 1 else 3e-5
-    params = [p for p in model.parameters() if p.requires_grad]
-    return optim.AdamW(params, lr=lr, weight_decay=1e-4)
+    if phase == 1:
+        lr = 1e-3   #learning rate for training
+        params = model.fc.parameters()
+    else:
+        lr = 3e-5  # small learning rate for fine-tuning
+        params = [p for p in model.parameters() if p.requires_grad]
+
+
+    # weight decay is a technique used to prevent overfitting making the model
+    # less likely to create too strong "opinions".
+    optimizer = optim.AdamW(params, lr=lr, weight_decay=1e-4)
+    return optimizer
 
 
 # -------------------------------------
-# 4. Training Engine
+# Train / Eval
 # -------------------------------------
 def train_one_epoch(model, loader, device, optimizer, criterion):
     model.train()
-    total_loss, correct, total = 0.0, 0, 0
+    total_loss = 0.0
+    correct = 0
+    total = 0
+
     for images, labels in loader:
-        images, labels = images.to(device, non_blocking=True), labels.to(device, non_blocking=True)
-        optimizer.zero_grad(set_to_none=True)
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
+        # --- GPU OPTIMIZATION ---
+        # non_blocking=True: Tells CPU "Send this data to GPU and move to next line immediately."
+        # Because we used pin_memory=True in DataLoader, the transfer happens in background
+        # while the GPU processes the PREVIOUS batch.
+        images = images.to(device, non_blocking=True)
+        labels = labels.to(device, non_blocking=True)
+
+        optimizer.zero_grad(set_to_none=True)         # Reset gradients from previous step
+        outputs = model(images)                       # Forward pass: Make a guess
+        loss = criterion(outputs, labels)             # Calculate error
+        loss.backward()                               # Calculate corrections
+        optimizer.step()                              #  Apply corrections
+
         total_loss += loss.item() * images.size(0)
-        correct += (outputs.argmax(dim=1) == labels).sum().item()
+        # preds holds the output with maximum probability
+        preds = outputs.argmax(dim=1)
+        correct += (preds == labels).sum().item()
         total += labels.size(0)
+
     return total_loss / total, correct / total
 
-
+# Disable gradient calculation to save memory/speed during validation
 @torch.no_grad()
 def evaluate(model, loader, device, criterion):
-    model.eval()
-    total_loss, correct, total = 0.0, 0, 0
+    model.eval()# Set model to evaluation mode (turns off Dropout/BatchNorm updates)
+    total_loss = 0.0
+    correct = 0
+    total = 0
+
     for images, labels in loader:
-        images, labels = images.to(device, non_blocking=True), labels.to(device, non_blocking=True)
-        outputs = model(images)
-        loss = criterion(outputs, labels)
+        # non_blocking=True: Tells CPU "Send this data to GPU and move to next line immediately."
+        # Because we used pin_memory=True in DataLoader, the transfer happens in background
+        # while the GPU processes the PREVIOUS batch.
+        images = images.to(device, non_blocking=True)
+        labels = labels.to(device, non_blocking=True)
+
+        outputs = model(images) #take a guess
+        loss = criterion(outputs, labels) # how wrong the model is compared  to the output
+
         total_loss += loss.item() * images.size(0)
-        correct += (outputs.argmax(dim=1) == labels).sum().item()
+        preds = outputs.argmax(dim=1)
+        correct += (preds == labels).sum().item()
         total += labels.size(0)
+
     return total_loss / total, correct / total
 
 
-def train_model(model, train_loader, valid_loader, device, p1_epochs=20, p2_epochs=10):
+def train_model(model, train_loader,valid_loader,device,phase1_epochs: int = 5,phase2_epochs: int = 10,):
+    #  plain CE (sampler already handles imbalance well)
     criterion = nn.CrossEntropyLoss()
-    best_acc, best_state = 0.0, None
 
-    for phase in [1, 2]:
-        print(f"\n--- Starting Phase {phase} ---")
-        set_trainable_params(model, phase=phase)
-        optimizer = get_optimizer(model, phase=phase)
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=2)
-        epochs = p1_epochs if phase == 1 else p2_epochs
+    best_acc = 0.0
+    best_state = None # Variable to hold the 'brain' (weights) of the best performing model
 
-        for epoch in range(epochs):
-            tr_loss, tr_acc = train_one_epoch(model, train_loader, device, optimizer, criterion)
-            va_loss, va_acc = evaluate(model, valid_loader, device, criterion)
-            scheduler.step(va_loss)
+    # ==========================================
+    # PHASE 1: "The Warm-Up" (Train Head Only)
+    # ==========================================
+    # Goal: Train the random classification layer to catch up with the pre-trained body.
+    set_trainable_params(model, phase=1)
+    # Optimizer: In Phase 1, we  use a higher Learning Rate (e.g., 1e-3)
+    # because the head starts from scratch and needs to learn fast.
+    optimizer = get_optimizer(model, phase=1)
+    # If the validation loss stops dropping (plateaus) for 2 epochs,
+    # cut the learning rate in half (factor=0.5) to find a more precise minimum.
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=2)
 
-            print(f"Epoch {epoch + 1}/{epochs} | Train Acc: {tr_acc:.2%} | Valid Acc: {va_acc:.2%}")
+    for epoch in range(phase1_epochs):
+        #Train on known data
+        tr_loss, tr_acc = train_one_epoch(model, train_loader, device, optimizer, criterion)
+        #Test on unseen data
+        va_loss, va_acc = evaluate(model, valid_loader, device, criterion)
+        #Adjust Learning Rate based on validation loss
+        scheduler.step(va_loss)
 
-            if va_acc > best_acc:
-                best_acc = va_acc
-                best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+        print(f"[Phase 1] Epoch {epoch+1}/{phase1_epochs} | "
+              f"Train: loss={tr_loss:.4f} acc={tr_acc:.2%} | "
+              f"Valid: loss={va_loss:.4f} acc={va_acc:.2%}")
+        # 4. Save the "Best So Far"
+        # We copy the weights to CPU so we don't clog up GPU memory.
+        if va_acc > best_acc:
+            best_acc = va_acc
+            best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+    # ==========================================
+    # ---- Phase 2: fine-tune layer4 + FC
+    # ==========================================
+    #Allow the last block (layer4) to adapt specifically to faces
+    set_trainable_params(model, phase=2)
+    #  We re-initialize the optimizer, we use a VERY small Learning Rate
+    optimizer = get_optimizer(model, phase=2)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=2)
 
-    if best_state: model.load_state_dict(best_state)
+    for epoch in range(phase2_epochs):
+        tr_loss, tr_acc = train_one_epoch(model, train_loader, device, optimizer, criterion)
+        va_loss, va_acc = evaluate(model, valid_loader, device, criterion)
+        scheduler.step(va_loss)
+
+        print(f"[Phase 2] Epoch {epoch+1}/{phase2_epochs} | "
+              f"Train: loss={tr_loss:.4f} acc={tr_acc:.2%} | "
+              f"Valid: loss={va_loss:.4f} acc={va_acc:.2%}")
+
+        if va_acc > best_acc:
+            best_acc = va_acc
+            best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+
+    # restore best ,We overwrite the current model with the best saved weights.
+    if best_state is not None:
+        model.load_state_dict(best_state)
+
+    print(f"Best valid accuracy: {best_acc:.2%}")
     return model
 
 
 # ------------------------------------
-# 5. Execution Logic
+# Main
 # ------------------------------------
 def main():
-    data_dir = "data/resnet_dataset"
+    data_dir = "data"
     output_dir = "models"
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Training on: {device}")
+    print("Device:", device)
 
-    train_loader, valid_loader, class_to_idx = get_dataloaders(data_dir)
-    model = build_model(num_classes=len(class_to_idx)).to(device)
+    train_loader, valid_loader, class_to_idx = get_dataloaders(data_dir, batch_size=32, num_workers=2)
+    print("Class to index mapping:", class_to_idx)
 
-    model = train_model(model, train_loader, valid_loader, device)
+    model = build_model(num_classes=len(class_to_idx))
+    model.to(device)
 
-    # Save final artifacts
-    torch.save(model.state_dict(), os.path.join(output_dir, "id_classifier_resnet18.pt"))
-    with open(os.path.join(output_dir, "class_mapping.json"), "w") as f:
-        json.dump(class_to_idx, f, indent=2)
-    print("Training complete. Artifacts saved in /models")
+    model = train_model(
+        model,
+        train_loader,
+        valid_loader,
+        device,
+        phase1_epochs=20,
+        phase2_epochs=10,  # Note: Lower learning rate here!
+    )
+
+    # Save weights + mapping
+    model_path = os.path.join(output_dir, "id_classifier_resnet18.pt")
+    torch.save(model.state_dict(), model_path)
+    print("Saved model weights to:", model_path)
+
+    mapping_path = os.path.join(output_dir, "class_mapping.json")
+    with open(mapping_path, "w", encoding="utf-8") as f:
+        json.dump(class_to_idx, f, indent=2, ensure_ascii=False)
+    print("Saved class mapping to:", mapping_path)
 
 
 if __name__ == "__main__":
     main()
+
