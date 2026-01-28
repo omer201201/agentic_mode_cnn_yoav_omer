@@ -3,17 +3,22 @@ import os
 import numpy as np
 import random
 from pathlib import Path
+from tqdm import tqdm
 
-# create all bad images on 128X128 padding if needed
-# CONFIG
-SOURCE_DIR = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset\normal"  # Put your good images here first!
+# --- CONFIG ---
+# We point SOURCE_DIR to your new downloaded folder
+SOURCE_DIR = r"C:\Users\Your0124\pycharm_project_test\generate_data\FFHQ_128X128"
 ROOT_DIR = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset"
-TARGET_SIZE = (128, 128)  # Standardize for the Gate CNN
+TARGET_SIZE = (128, 128)
+NUM_IMAGES_TO_USE = 2000  # How many faces to process
+TRAIN_RATIO = 0.8  # 80% train, 20% validation
 
-def create_folders():
-    classes = ["low_light", "motion_blur", "low_res"]
-    for c in classes:
-        os.makedirs(os.path.join(ROOT_DIR, c), exist_ok=True)
+def create_gate_folders():
+    """Creates the nested train/val folder structure."""
+    for split in ["train", "val"]:
+        for c in ["normal", "low_light", "motion_blur", "low_res"]:
+            path = os.path.join(ROOT_DIR, split, c)
+            os.makedirs(path, exist_ok=True)
 
 
 def letterbox_resize(img, target_size=TARGET_SIZE, color=(0, 0, 0)):
@@ -88,29 +93,39 @@ def make_low_res(img):
 
 def generate():
     if not os.path.exists(SOURCE_DIR):
-        print(f"Error: Source folder {SOURCE_DIR} does not exist.")
+        print(f"Error: Could not find {SOURCE_DIR}")
         return
 
-    create_folders()
-    images = list(Path(SOURCE_DIR).glob("*/*.jpg")) + list(Path(SOURCE_DIR).glob("*.jpg"))
-    print(f"Found {len(images)} normal images. Generating bad versions...")
+    create_gate_folders()
 
-    for img_path in images:
-        filename = img_path.name
+    # Get list of images and shuffle them for a random sample
+    all_images = list(Path(SOURCE_DIR).glob("*.png")) + list(Path(SOURCE_DIR).glob("*.jpg"))
+    random.shuffle(all_images)
+    selected_images = all_images[:NUM_IMAGES_TO_USE]
+
+    split_point = int(len(selected_images) * TRAIN_RATIO)
+
+    print(f"--  Generating Data from FFHQ Thumbs ---")
+
+    for idx, img_path in enumerate(tqdm(selected_images)):
+        current_split = "train" if idx < split_point else "val"
         img = cv2.imread(str(img_path))
-
         if img is None: continue
-        padded_img = letterbox_resize(img)
 
-        # --- STEP 2: Save Classes ---
-        cv2.imwrite(os.path.join(ROOT_DIR, "normal", filename), padded_img)
-        cv2.imwrite(os.path.join(ROOT_DIR, "low_light", filename), make_low_light(padded_img))
-        cv2.imwrite(os.path.join(ROOT_DIR, "motion_blur", filename), make_motion_blur(padded_img))
-        cv2.imwrite(os.path.join(ROOT_DIR, "low_res", filename), make_low_res(padded_img))
+        # Standardize
+        padded = letterbox_resize(img)
+        filename = img_path.name
 
-    print(" Data Generation Complete! Check your data folders.")
+        base_path = os.path.join(ROOT_DIR, current_split)
+
+        # Save the 4 classes
+        cv2.imwrite(os.path.join(base_path, "normal", filename), padded)
+        cv2.imwrite(os.path.join(base_path, "low_light", filename), make_low_light(padded))
+        cv2.imwrite(os.path.join(base_path, "motion_blur", filename), make_motion_blur(padded))
+        cv2.imwrite(os.path.join(base_path, "low_res", filename), make_low_res(padded))
+
+    print(f" Success! Folders ready at: {ROOT_DIR}")
 
 
 if __name__ == "__main__":
-
     generate()
