@@ -217,7 +217,7 @@ def main():
         train_loader,
         valid_loader,
         device,
-        epochs=15  # 15 Epochs should be plenty for this data
+        epochs=10  # 10 Epochs should be plenty for this data
     )
 
     # 4. Save Results
@@ -234,3 +234,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
