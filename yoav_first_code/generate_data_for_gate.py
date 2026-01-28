@@ -8,7 +8,6 @@ from pathlib import Path
 SOURCE_DIR = "data/gate_dataset/normal"  # Put your good images here first!
 ROOT_DIR = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset"
 
-
 def create_folders():
     classes = ["low_light", "motion_blur", "low_res"]
     for c in classes:
@@ -22,10 +21,10 @@ def make_low_light(img):
     look_up_table = np.array([((i / 255.0) ** gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
     dark = cv2.LUT(img, look_up_table)
 
-    # 2. Add realistic ISO noise
-    # We create noise, then use cv2.add weighted or clip it so it doesn't "wrap"
-    noise = np.zeros(dark.shape, np.int16)  # Use int16 to allow negative values temporarily
-    cv2.randn(noise, 0, 10)  # Generate random normal noise
+    # Randomize ISO grain/noise intensity
+    noise_level = random.randint(5, 25)
+    noise = np.zeros(dark.shape, np.int16) # Use int16 to allow negative values temporarily
+    cv2.randn(noise, 0, noise_level) # Generate random normal noise
 
     # 3. Combine and Clip
     # This ensures values stay between 0-255
@@ -35,15 +34,24 @@ def make_low_light(img):
     return final_img
 
 
-def create_motion_blur(img):
+def make_motion_blur(img):
+    """Simulates movement at any random angle (0-360 degrees)."""
     kernel_size = random.choice([7, 9, 11, 13])
+    angle = random.uniform(0, 360)
+
+    # Create the horizontal kernel
     kernel = np.zeros((kernel_size, kernel_size))
-    if random.random() > 0.5:
-        kernel[int((kernel_size - 1) / 2), :] = np.ones(kernel_size)
-    else:
-        kernel[:, int((kernel_size - 1) / 2)] = np.ones(kernel_size)
-    kernel /= kernel_size
-    return cv2.filter2D(img, -1, kernel)
+    kernel[int((kernel_size - 1) / 2), :] = np.ones(kernel_size)
+
+    # Rotate the kernel to the random angle
+    M = cv2.getRotationMatrix2D((kernel_size / 2, kernel_size / 2), angle, 1)
+    kernel = cv2.warpAffine(kernel, M, (kernel_size, kernel_size))
+
+    kernel /= np.sum(kernel)  # Normalize to maintain brightness
+    final_img = cv2.filter2D(img, -1, kernel)
+
+    return final_img
+
 
 def make_low_res(img):
     # Downscale then Upscale to simulate pixelation
@@ -82,7 +90,7 @@ def generate():
         lowres = make_low_res(img)
         cv2.imwrite(f"{ROOT_DIR}/low_res/{filename}", lowres)
 
-    print("✅ Data Generation Complete! Check your data folders.")
+    print(" Data Generation Complete! Check your data folders.")
 
 
 if __name__ == "__main__":
