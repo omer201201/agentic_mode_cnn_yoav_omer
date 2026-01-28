@@ -6,7 +6,7 @@ import numpy as np
 class SuperResAgent:
     def __init__(self, model_name="models/FSRCNN-small_x3.pb", scale=3):
         """
-        Initializes the Super Resolution Agent (AI Mode Only).
+        Initializes the Super Resolution Agent
         """
         self.scale = scale
         self.model_path = model_name
@@ -21,24 +21,17 @@ class SuperResAgent:
         try:
             self.sr = cv2.dnn_superres.DnnSuperResImpl_create()
 
-            # --- 🛠️ THE FIX IS HERE ---
             # OpenCV only recognizes specific internal names.
-            # We check what file you provided and set the internal name accordingly.
+            # We check what file provided and set the internal name accordingly.
             filename_lower = os.path.basename(model_name).lower()
             if 'fsrcnn' in filename_lower:
                 algo = 'fsrcnn'
-            elif 'edsr' in filename_lower:
-                algo = 'edsr'
-            elif 'espcn' in filename_lower:
-                algo = 'espcn'
-            elif 'lapsrn' in filename_lower:
-                algo = 'lapsrn'
             else:
-                raise ValueError("Unknown model type. Filename must contain fsrcnn, edsr, espcn, or lapsrn.")
+                raise ValueError("Unknown model type. Filename must contain fsrcnn.")
 
             print(f"[SuperRes] Loading file: {os.path.basename(model_name)} as Algorithm: '{algo}'")
             self.sr.readModel(self.model_path)
-            # This must be exactly 'fsrcnn', 'edsr', etc.
+            # This must be exactly 'fsrcnn'
             self.sr.setModel(algo, scale)
             print(f"[SuperRes] Success! AI Model loaded (Scale x{scale})")
 
@@ -53,21 +46,17 @@ class SuperResAgent:
         if face_crop is None or face_crop.size == 0:
             return face_crop
 
-        # 1. Run AI Inference (The Magic Step)
-        # The AI dreams up new details to make it 3x bigger.
+        # 1. Run AI Inference new details to make it 3x bigger
         result = self.sr.upsample(face_crop)
 
-        # 2. Safety Cap for ResNet (Optional but good practice)
         h, w = result.shape[:2]
-        if h > 250 or w > 250:
-            # Use INTER_AREA for high-quality shrinking
-            result = cv2.resize(result, (224, 224), interpolation=cv2.INTER_AREA)
+        print(f"[SuperRes] Upsampling result: {h}x{w}")
 
         return result
 
 
 def main():
-    print("--- 🔍 Testing Super Resolution Agent ---")
+    print("-- Testing Super Resolution Agent ---")
 
     # 1. Initialize Agent
     try:
@@ -78,39 +67,30 @@ def main():
         return
 
     # 2. Load an image
-    img_path = "data/gate_dataset/train/low_res/00247.png"
+    img_path = r"C:\Users\Your0124\pycharm_project_test\data\train\yoav\IMG_1622.jpg"
     if not os.path.exists(img_path):
         print(f"Image not found at {img_path}")
         return
 
     original = cv2.imread(img_path)
 
-    # 3. Simulate a "Tiny Input" problem
-    # We shrink the image to 1/3rd of its size to create a blurry input
-    h, w = original.shape[:2]
-    tiny_input = cv2.resize(original, (w // 3, h // 3), interpolation=cv2.INTER_LINEAR)
-    print(f"Tiny Input Size: {tiny_input.shape[1]}x{tiny_input.shape[0]}")
+    print(f"Tiny Input Size: {original.shape[1]}x{original.shape[0]}")
 
-    # 4. Run the Agent (AI Upscale)
-    upscaled_result = agent.process(tiny_input)
-    h_res, w_res = upscaled_result.shape[:2]
-    print(f"AI Result Size:  {w_res}x{h_res}")
+    # --- 4. Run the Agent (AI Upscale) ---
+    upscaled_reday = agent.process(original)
 
-    # --- 5. Create Single Comparison Figure ---
+    # ---Resize the original to match the AI result height ---
+    original_ready = cv2.resize(original, (900, 900), interpolation=cv2.INTER_AREA)
+    upscaled_result =cv2.resize(upscaled_reday, (900, 900), interpolation=cv2.INTER_AREA)
 
-    # To show them side-by-side, they need the same height.
-    # We resize the tiny input UP using standard math (bilinear) to show how blurry it is.
-    display_blurry = cv2.resize(tiny_input, (w_res, h_res), interpolation=cv2.INTER_LINEAR)
-
-    # Add labels onto the images so we know which is which
-    # (Image, Text, Position, Font, Scale, Color(BGR), Thickness)
-    cv2.putText(display_blurry, "Standard Resize (Blurry)", (10, 20),
+    # Add labels onto the images
+    cv2.putText(original_ready, "Original (Resized)", (10, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
     cv2.putText(upscaled_result, "FSRCNN AI (Sharp)", (10, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
-    # Stack them horizontally
-    final_figure = np.hstack((display_blurry, upscaled_result))
+    # Stack them horizontally (Heights now match perfectly)
+    final_figure = np.hstack((original_ready, upscaled_result))
 
     cv2.imshow("Super Resolution Comparison", final_figure)
     print("Press any key to exit...")
