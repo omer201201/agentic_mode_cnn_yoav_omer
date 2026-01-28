@@ -5,14 +5,36 @@ import random
 from pathlib import Path
 
 # CONFIG
-SOURCE_DIR = "data/gate_dataset/normal"  # Put your good images here first!
+SOURCE_DIR = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset\normal"  # Put your good images here first!
 ROOT_DIR = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset"
+TARGET_SIZE = (128, 128)  # Standardize for the Gate CNN
 
 def create_folders():
     classes = ["low_light", "motion_blur", "low_res"]
     for c in classes:
         os.makedirs(os.path.join(ROOT_DIR, c), exist_ok=True)
 
+
+def letterbox_resize(img, target_size=TARGET_SIZE, color=(0, 0, 0)):
+    """Resizes image while maintaining aspect ratio and adding padding."""
+    h, w = img.shape[:2]
+    # Calculate the ratio to fit the image into the target size
+    r = min(target_size[0] / h, target_size[1] / w)
+    new_unpad = (int(round(w * r)), int(round(h * r)))
+
+    # Resize keeping the proportions
+    img_resized = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)
+
+    # Calculate padding needed to reach target_size
+    dw = target_size[0] - new_unpad[0]
+    dh = target_size[1] - new_unpad[1]
+
+    top, bottom = dh // 2, dh - (dh // 2)
+    left, right = dw // 2, dw - (dw // 2)
+
+    # Add black bars
+    return cv2.copyMakeBorder(img_resized, top, bottom, left, right,
+                              cv2.BORDER_CONSTANT, value=color)
 
 def make_low_light(img):
     # 1. Reduce brightness (Gamma Correction)
@@ -77,18 +99,13 @@ def generate():
         img = cv2.imread(str(img_path))
 
         if img is None: continue
+        padded_img = letterbox_resize(img)
 
-        # 1. Generate Low Light
-        dark = make_low_light(img)
-        cv2.imwrite(f"{ROOT_DIR}/low_light/{filename}", dark)
-
-        # 2. Generate Blur
-        blur = make_motion_blur(img)
-        cv2.imwrite(f"{ROOT_DIR}/motion_blur/{filename}", blur)
-
-        # 3. Generate Low Res
-        lowres = make_low_res(img)
-        cv2.imwrite(f"{ROOT_DIR}/low_res/{filename}", lowres)
+        # --- STEP 2: Save Classes ---
+        cv2.imwrite(os.path.join(ROOT_DIR, "normal", filename), padded_img)
+        cv2.imwrite(os.path.join(ROOT_DIR, "low_light", filename), make_low_light(padded_img))
+        cv2.imwrite(os.path.join(ROOT_DIR, "motion_blur", filename), make_motion_blur(padded_img))
+        cv2.imwrite(os.path.join(ROOT_DIR, "low_res", filename), make_low_res(padded_img))
 
     print(" Data Generation Complete! Check your data folders.")
 
