@@ -6,7 +6,7 @@ from pathlib import Path
 
 # CONFIG
 SOURCE_DIR = "data/gate_dataset/normal"  # Put your good images here first!
-ROOT_DIR = "data/gate_dataset"
+ROOT_DIR = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset"
 
 
 def create_folders():
@@ -35,16 +35,15 @@ def make_low_light(img):
     return final_img
 
 
-
-def make_motion_blur(img):
-    # Simulate camera shake
-    size = random.choice([7, 9, 11])  # Kernel size
-    kernel_motion_blur = np.zeros((size, size))
-    # Horizontal blur
-    kernel_motion_blur[int((size - 1) / 2), :] = np.ones(size)
-    kernel_motion_blur = kernel_motion_blur / size
-    return cv2.filter2D(img, -1, kernel_motion_blur)
-
+def create_motion_blur(img):
+    kernel_size = random.choice([7, 9, 11, 13])
+    kernel = np.zeros((kernel_size, kernel_size))
+    if random.random() > 0.5:
+        kernel[int((kernel_size - 1) / 2), :] = np.ones(kernel_size)
+    else:
+        kernel[:, int((kernel_size - 1) / 2)] = np.ones(kernel_size)
+    kernel /= kernel_size
+    return cv2.filter2D(img, -1, kernel)
 
 def make_low_res(img):
     # Downscale then Upscale to simulate pixelation
