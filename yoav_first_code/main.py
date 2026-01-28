@@ -49,7 +49,10 @@ class IntegratedGate:
         """Logic to decide which agent is needed."""
         avg_brightness = np.mean(cv2.cvtColor(face_crop, cv2.COLOR_BGR2GRAY))
         h, w = face_crop.shape[:2]
-
+        
+        #---------------++++++++++++++++++++++++
+        #NEED TO PUT GATE HERE
+        #---------------++++++++++++++++++++++++
         if avg_brightness < 60: return "low_light"
         if h < 80 or w < 80: return "low_res"
 
@@ -115,3 +118,4 @@ class IntegratedGate:
 if __name__ == "__main__":
     gate = IntegratedGate()
     gate.run()
+
