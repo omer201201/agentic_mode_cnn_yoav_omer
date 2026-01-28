@@ -144,68 +144,17 @@ class AdaptiveGate:
         # --- STEP 3: Ask the Brain ---
         with torch.no_grad():
             outputs = self.model(input_tensor)
-            conf, predicted_idx = torch.max(outputs, 1)
+
+            # 1. Apply Softmax to turn raw numbers into probabilities (0.0 to 1.0)
+            probabilities = torch.nn.functional.softmax(outputs, dim=1)
+
+            # 2. Find the highest probability and its class index
+            conf, predicted_idx = torch.max(probabilities, 1)
+
             predicted_class = self.classes[predicted_idx.item()]
-            # Convert to percentage (e.g., 98.5)
+
+            # 3. Now the percentage will always be between 0 and 100
             confidence_score = conf.item() * 100
 
         return  confidence_score,predicted_class
 
-
-# ==========================================
-# 3. Test Block
-# ==========================================
-def main():
-    print("---  Starting gate Test ---")
-
-    # 1. Setup Paths
-    # Adjust this path to point to your 'test' folder
-    folder_path = os.path.join(r"C:\Users\Your0124\pycharm_project_test\data\valid\yoav")
-
-
-    try:
-        # Load Gate
-        gate = AdaptiveGate(model_path="models/gate_model_best.pth")
-    except Exception as e:
-        print(f" Error loading models: {e}")
-        return
-
-    # 2. Get Images
-    if not os.path.exists(folder_path):
-        print(f" Folder not found: {folder_path}")
-        return
-
-    image_files = [f for f in os.listdir(folder_path) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-    print(f" Found {len(image_files)} images to test.\n")
-
-    # 3. Processing Loop
-    results = {'normal': 0, 'low_light': 0, 'low_res': 0, 'motion_blur': 0}
-
-    print(f"{'FILENAME':<25} | {'FACE SIZE':<15}| {'SCORE':<15}| {'GATE DECISION'}")
-    print("-" * 80)
-
-    for filename in image_files:
-        full_path = os.path.join(folder_path, filename)
-        img = cv2.imread(full_path)
-
-        if img is None: continue
-        h, w = img.shape[:2]
-
-        # --- STEP B: GATE CLASSIFICATION ---
-        # The Gate now sees ONLY the face, no background noise
-        confidence_score,decision = gate.process(img)
-
-        # Update Stats
-        results[decision] += 1
-
-        print(f"{filename:<25} | {f'{w}x{h}':<15}| {confidence_score:<15.2f}| {decision}")
-
-    # 4. Final Report
-    print("\n" + "=" * 30)
-    print(" FINAL RESULTS")
-    print("=" * 30)
-    for category, count in results.items():
-        print(f"{category.title()}: {count}")
-
-if __name__ == "__main__":
-    main()
