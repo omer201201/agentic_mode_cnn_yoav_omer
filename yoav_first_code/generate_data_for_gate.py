@@ -4,6 +4,7 @@ import numpy as np
 import random
 from pathlib import Path
 
+# create all bad images on 128X128 padding if needed
 # CONFIG
 SOURCE_DIR = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset\normal"  # Put your good images here first!
 ROOT_DIR = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset"
