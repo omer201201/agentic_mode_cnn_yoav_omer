@@ -98,7 +98,7 @@ class AdaptiveGate:
         """
         Resize image to target_size x target_size while keeping aspect ratio.
         Fills the empty space with black.
-        """
+
         h, w = img.shape[:2]
         scale = min(target_size / h, target_size / w)
 
@@ -117,6 +117,21 @@ class AdaptiveGate:
         #You "paste" the resized face into that specific black area.
         canvas[y_off:y_off + new_h, x_off:x_off + new_w] = resized
         return canvas
+        """
+        h, w = img.shape[:2]
+
+        # Determine if we are upscaling or downscaling
+        if h < target_size or w < target_size:
+            # We are enlarging the image
+            # INTER_CUBIC provides the best smoothness for faces
+            interp = cv2.INTER_CUBIC
+        else:
+            # We are shrinking the image
+            # INTER_AREA is best for maintaining detail when downscaling
+            interp = cv2.INTER_AREA
+
+        return cv2.resize(img, (target_size, target_size), interpolation=interp)
+
 
     def process(self, face_crop):
         """
