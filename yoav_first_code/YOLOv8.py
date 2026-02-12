@@ -5,7 +5,7 @@ from ultralytics import YOLO
 import time
 
 class FaceDetector:
-    def __init__(self, model_path="models/yolov8n-face.pt", conf_threshold=0.15):
+    def __init__(self, model_path="models/yolov8n-face.pt", conf_threshold=0.5):
         """
         Initialize the YOLOv8 Face detector.
         """
@@ -22,37 +22,41 @@ class FaceDetector:
 
         self.conf_threshold = conf_threshold
 
-    def detect(self, frame, conf_thres=0.01, iou_thres=0.45, expand_ratio=0.20):
+    def detect(self, frame, expand_ratio=0.30):
         """
         Input: Single image frame
         Output: List of tuples (x1, y1, x2, y2, confidence)
         expand_ratio: How much to expand the box (0.20 = 20% bigger)
         """
         # Run inference
-        results = self.model(frame, conf=conf_thres, iou=iou_thres, verbose=False)
+        results = self.model(frame, verbose=False)
         detections = []
         height_img, width_img, _ = frame.shape
 
         for box in results[0].boxes:
             conf = float(box.conf[0].item())
 
-            if conf >= conf_thres:
+            if conf >= self.conf_threshold:
                 # 1. Get original tight coordinates
                 x1, y1, x2, y2 = box.xyxy[0].int().tolist()
 
-                # 2. Calculate the expansion amount
-                box_width = x2 - x1
-                box_height = y2 - y1
+                # 1. Get original dimensions and center
+                box_w = x2 - x1
+                box_h = y2 - y1
+                center_x = x1 + box_w // 2
+                center_y = y1 + box_h // 2
 
-                # Expand horizontally and vertically
-                x_pad = int(box_width * expand_ratio)
-                y_pad = int(box_height * expand_ratio)
+                # 2. Determine the "Square Side"
+                # Use the max dimension so we don't chop off the chin or forehead
+                # We apply the expand_ratio here: (1 + 0.20) makes it 20% larger
+                side = int(max(box_w, box_h) * (1 + expand_ratio))
+                half_side = side // 2
 
-                # 3. Apply expansion (and ensure we don't go outside the image)
-                x1 = max(0, x1 - x_pad)
-                y1 = max(0, y1 - y_pad)
-                x2 = min(width_img, x2 + x_pad)
-                y2 = min(height_img, y2 + y_pad)
+                # 3. Apply expansion from the CENTER
+                x1 = max(0, center_x - half_side)
+                y1 = max(0, center_y - half_side)
+                x2 = min(width_img, center_x + half_side)
+                y2 = min(height_img, center_y + half_side)
 
                 # 3. CROP THE FACE
                 # Note: copy() is important so we don't modify the original frame
@@ -124,7 +128,7 @@ if __name__ == "__main__":
         detector = FaceDetector(model_path="models/yolov8n-face.pt")
 
         # Load test image
-        frame = cv2.imread(r"C:\Users\Your0124\pycharm_project_test\data\resnet_dataset\test2\00014.png")
+        frame = cv2.imread(r"C:\Users\Your0124\pycharm_project_test\data\resnet_dataset\test1\2d4c4ced-2ade-4a7d-8853-b1718cef1020.JPG")
         if frame is None:
             print("Error: test_face.jpg not found.")
             exit()
