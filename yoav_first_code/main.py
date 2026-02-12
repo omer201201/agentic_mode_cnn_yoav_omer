@@ -163,7 +163,7 @@ class IntegratedGate:
             if frame is None: continue
 
             # STEP 1: Detect Faces (YOLO)
-            results = self.detector.detect(frame, conf_thres=0.30, iou_thres=0.45, expand_ratio=0.20)
+            results = self.detector.detect(frame, expand_ratio=0.30)
 
             for res in results:
                 face = res["crop"]
@@ -242,7 +242,7 @@ class IntegratedGate:
 if __name__ == "__main__":
     system = IntegratedGate()
     # OPTION 1: Run on images (Choose this while camera is broken)
-    test_folder = r"C:\Users\Your0124\pycharm_project_test\data\resnet_dataset\test3\fiftyone\coco-2017\train\data"
+    test_folder = r"C:\Users\Your0124\pycharm_project_test\data\resnet_dataset\train\yoav"
     system.run_on_folder(test_folder)
 
     # OPTION 2: Standard Video Stream (Use this later on Jetson Orin Nano)
