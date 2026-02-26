@@ -5,7 +5,7 @@ from YOLOv8 import FaceDetector
 
 # --- CONFIGURATION ---
 # We will save these directly into your Gate's training folder
-BASE_TRAIN_DIR = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset\train"
+BASE_TRAIN_DIR = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset\train_test"
 MODEL_YOLO = "models/yolov8n-face.pt"
 
 # Ensure folders exist
@@ -112,4 +112,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
