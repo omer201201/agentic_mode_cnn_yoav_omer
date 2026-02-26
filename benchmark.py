@@ -17,7 +17,7 @@ from generate_data.generate_data_for_gate import smart_resize
 TEST_FOLDER = r"C:\Users\Your0124\pycharm_project_test\data\resnet_dataset\testpipline"
 OUTPUT_CSV = "pipeline_comparison.csv"
 
-# Ensure these match your main.py paths exactly
+
 MODEL_PATHS = {
     "yolo": "models/yolov8n-face.pt",
     "resnet": "models/id_classifier_resnet18_test.pt",
@@ -52,7 +52,6 @@ class PipelineBenchmark:
         try:
             self.id_model.load_state_dict(torch.load(MODEL_PATHS["resnet"], map_location=self.device))
         except:
-            # Fallback if architecture differs
             print("cant load resnet...")
 
         self.id_model.to(self.device).eval()
@@ -87,8 +86,8 @@ class PipelineBenchmark:
 
     def run_benchmark(self):
         headers = [
-            "Image", "Face_Index", "Gate Decision",
-            "BASE_Name", "BASE_Conf", "BASE_Time(ms)",
+            "Image", "Face_Index","BASE_Name",
+             "BASE_Conf", "BASE_Time(ms)","Gate Decision",
             "GATE_Name", "GATE_Conf", "GATE_Time(ms)",
             "Conf_Gain", "Time_Cost(ms)"
         ]
@@ -141,8 +140,8 @@ class PipelineBenchmark:
                         f"[{filename[:10]} (Face {coords})] {quality.upper():<10} | Base: {base_conf:.2f} | Gate: {gate_conf:.2f}")
 
                     writer.writerow([
-                        filename, coords, quality,
-                        base_name, f"{base_conf:.4f}", f"{base_time:.2f}",
+                        filename, coords,base_name,
+                         f"{base_conf:.4f}", f"{base_time:.2f}",quality,
                         gate_name, f"{gate_conf:.4f}", f"{gate_time:.2f}",
                         f"{conf_diff:.2f}", f"{time_diff:.2f}"
                     ])
