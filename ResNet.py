@@ -1,257 +1,299 @@
 import os
-import cv2
-import torch
-import numpy as np
 import json
-from YOLOv8 import FaceDetector
-from ResNet import build_model
-from low_light_agent import DynamicLowLightAgent
-from motion_blur_agent import MotionBlurAgent
-from low_res_agent import SuperResAgent
-from generate_data.generate_data_for_gate import smart_resize
-from gate import AdaptiveGate
-import time
+from pathlib import Path
+from collections import Counter
 
-# ---  CONFIGURATION ---
-MODEL_PATHS = {
-    "yolo": "models/yolov8n-face.pt",
-    "resnet": "models/id_classifier_resnet18.pt",
-    "gate": "models/gate_model_best.pth",
-    "mapping": "models/class_mapping.json",
-    "sr_pb": "models/ESPCN_x3.pb"
-}
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, WeightedRandomSampler
+from torchvision import datasets, transforms, models
+from torchvision.models import ResNet18_Weights
 
 
-class IntegratedGate:
-    def __init__(self):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f" Initializing Full Pipeline on: {self.device}")
+# ----------------------------------------
+# Data
+# ----------------------------------------
+def get_dataloaders(data_dir: str, batch_size: int = 32, num_workers: int = 2):
+    """
+    Expects:
+      data/train/<class_name>/*.jpg
+      data/valid/<class_name>/*.jpg
+    """
 
-        # 1. Face Detector (YOLOv8)
-        self.detector = FaceDetector(model_path=MODEL_PATHS["yolo"])
+    # Mild augmentations (better for face-ID style classification)
+    train_tfms = transforms.Compose([
+        #ResNet expects 224x224 inputs
+        transforms.RandomResizedCrop(224, scale=(0.5, 1.0)),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.ColorJitter(brightness=0.20, contrast=0.10, saturation=0.05, hue=0.02),
+        transforms.ToTensor(),
+        # values to match statistics of data the model was originally trained on
+        transforms.Normalize(mean=ResNet18_Weights.IMAGENET1K_V1.transforms().mean,
+                             std=ResNet18_Weights.IMAGENET1K_V1.transforms().std),
+    ])
 
-        # 2. THE BRAIN: Adaptive Gate
-        self.gate = AdaptiveGate(model_path=MODEL_PATHS["gate"])
+    valid_tfms = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=ResNet18_Weights.IMAGENET1K_V1.transforms().mean,
+                             std=ResNet18_Weights.IMAGENET1K_V1.transforms().std),
+    ])
+    # assigns labels to each folder
+    train_ds = datasets.ImageFolder(root=os.path.join(data_dir, "train"), transform=train_tfms)
+    valid_ds = datasets.ImageFolder(root=os.path.join(data_dir, "valid"), transform=valid_tfms)
 
-        # 3. Identification Model (ResNet-18)
-        with open(MODEL_PATHS["mapping"], 'r') as f:
-            self.classes = [k for k, v in sorted(json.load(f).items(), key=lambda x: x[1])]
+    # Ensure identical mapping
+    if train_ds.class_to_idx != valid_ds.class_to_idx:
+        raise ValueError(
+            f"Train and valid class_to_idx differ:\n"
+            f"train: {train_ds.class_to_idx}\n"
+            f"valid: {valid_ds.class_to_idx}"
+        )
 
-        self.id_model = build_model(num_classes=len(self.classes))
-        self.id_model.load_state_dict(torch.load(MODEL_PATHS["resnet"], map_location=self.device))
-        self.id_model.to(self.device).eval()
-        # 3. Pre-calculated Normalization Tensors (Saves FPS on Jetson)
-        # Matches ResNet18_Weights.IMAGENET1K_V1
-        self.mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1).to(self.device)
-        self.std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1).to(self.device)
+    # Prints counts per class ( useful to spot imbalance)
+    train_counts = Counter(train_ds.targets) #counts number of pictures
+    valid_counts = Counter(valid_ds.targets)
+    idx_to_class = {v: k for k, v in train_ds.class_to_idx.items()}
+    print("Train counts:", {idx_to_class[i]: train_counts[i] for i in sorted(train_counts)})
+    print("Valid counts:", {idx_to_class[i]: valid_counts[i] for i in sorted(valid_counts)})
 
-        # 4. Preprocessing Agents
-        self.low_light_agent = DynamicLowLightAgent()
-        self.motion_blur_agent = MotionBlurAgent()
-        self.super_res_agent = SuperResAgent()
+    # Weighted sampler for imbalanced datasets
+    # weight per sample = 1 / count(class)
+    class_counts = torch.tensor([train_counts[i] for i in range(len(train_ds.classes))], dtype=torch.float)
+    class_weights = 1.0 / class_counts
+    sample_weights = class_weights[torch.tensor(train_ds.targets, dtype=torch.long)]
+    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=len(sample_weights), replacement=True)
 
-        # Standardization for ResNet Identification (224x224)
-        self.id_letterbox = smart_resize  # We use the function directly
+    # Definning the way in which the model gets the data.
+    train_loader = DataLoader(   #
+        train_ds,
+        batch_size=batch_size,
+        sampler=sampler,          # use sampler instead of shuffle
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True
+    )
 
-    #----------------------------------------------------------------------------
-    # with camera
-    #----------------------------------------------------------------------------
-    def run(self):
-        cap = cv2.VideoCapture(0)  # Camera Stream
-        print("--- System Live. Press 'q' to quit ---")
+    valid_loader = DataLoader(
+        valid_ds,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True
+    )
 
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret: break
+    return train_loader, valid_loader, train_ds.class_to_idx
 
-            # STEP 1: Detect Faces (YOLO)
-            results = self.detector.detect(frame, expand_ratio=0.30)
 
-            for res in results:
-                face = res["crop"]
-                coords = res["coords"]
+# ----------------------------------------
+# Model
+# ----------------------------------------
+def build_model(num_classes: int):
+    # Use official pretrained weights
+    model = models.resnet18(weights=None)
+    state_dict = torch.load("models/resnet18-f37072fd.pth", map_location="cpu")
+    model.load_state_dict(state_dict)
 
-                # STEP 2: The Gate Decision
-                gate_conf, quality = self.gate.process(face)
+    # Replace classifier
+    in_features = model.fc.in_features
+    model.fc = nn.Linear(in_features, num_classes)
+    return model
 
-                # STEP 3: Route to Correct Agent
-                if quality == "low_light":
-                    fixed_face = self.low_light_agent.process(face)
-                elif quality == "low_res":
-                    fixed_face = self.super_res_agent.process(face)
-                elif quality == "motion_blur":
-                    fixed_face = self.motion_blur_agent.process(face)
-                else:
-                    fixed_face = face  # "normal" class
 
-                # STEP 4: Identify Person (ResNet)
-                input_face = self.id_letterbox(fixed_face, target_size=128)
+def set_trainable_params(model: nn.Module, phase: int):
+    """
+    phase 1: train only fc (linear probing)
+    phase 2: fine-tune layer4 + fc
+    """
+    # Phase 1: Freeze almost everything
+    for p in model.parameters():
+        p.requires_grad = False
 
-                # CRITICAL: BGR to RGB swap
-                input_face_rgb = cv2.cvtColor(input_face, cv2.COLOR_BGR2RGB)
+    # Always train fc ( layer output)
+    for p in model.fc.parameters():
+        p.requires_grad = True
 
-                # Tensor Conversion + Normalization
-                tensor = torch.from_numpy(np.array(input_face_rgb)).permute(2, 0, 1).float().unsqueeze(0).to(
-                    self.device) / 255.0
-                tensor = (tensor - self.mean) / self.std
+    # Phase 2: Unfreeze the last block(layer4)
+    if phase >= 2:
+        for p in model.layer4.parameters():
+            p.requires_grad = True
 
-                with torch.no_grad():
-                    output = self.id_model(tensor)
-                    prob = torch.nn.functional.softmax(output, dim=1)
-                    id_conf, pred = torch.max(prob, 1)
 
-                # Threshold Check for Unknowns
-                if id_conf.item() < 0.40:
-                    person_name = "Unknown"
-                else:
-                    person_name = self.classes[pred.item()]
+def get_optimizer(model: nn.Module, phase: int):
+    if phase == 1:
+        lr = 1e-3   #learning rate for training
+        params = model.fc.parameters()
+    else:
+        lr = 3e-5  # small learning rate for fine-tuning
+        params = [p for p in model.parameters() if p.requires_grad]
 
-                # STEP 5: Robust UI Drawing (Matches run_on_folder logic)
-                id_percent = id_conf.item() * 100
-                label = f"{person_name} ({id_percent:.1f}%)"
-                mode_text = f"Mode: {quality} ({gate_conf:.1f}%)"
 
-                # Green for recognized, Red for 'other' or 'Unknown'
-                color = (0, 255, 0) if person_name not in ["other", "Unknown"] else (0, 0, 255)
+    # weight decay is a technique used to prevent overfitting making the model
+    # less likely to create too strong "opinions".
+    optimizer = optim.AdamW(params, lr=lr, weight_decay=1e-4)
+    return optimizer
 
-                # 1. Bounding Box
-                cv2.rectangle(frame, (coords[0], coords[1]), (coords[2], coords[3]), color, 2)
 
-                # 2. Text Positioning (Inside if too close to top)
-                text_y_base = coords[1] + 25 if coords[1] < 60 else coords[1] - 15
+# -------------------------------------
+# Train / Eval
+# -------------------------------------
+def train_one_epoch(model, loader, device, optimizer, criterion):
+    model.train()
+    total_loss = 0.0
+    correct = 0
+    total = 0
 
-                # 3. Background plate for readability
-                cv2.rectangle(frame, (coords[0], text_y_base - 20), (coords[0] + 210, text_y_base + 25), (0, 0, 0), -1)
+    for images, labels in loader:
+        # --- GPU OPTIMIZATION ---
+        # non_blocking=True: Tells CPU "Send this data to GPU and move to next line immediately."
+        # Because we used pin_memory=True in DataLoader, the transfer happens in background
+        # while the GPU processes the PREVIOUS batch.
+        images = images.to(device, non_blocking=True)
+        labels = labels.to(device, non_blocking=True)
 
-                # 4. Text Overlay
-                cv2.putText(frame, label, (coords[0] + 5, text_y_base),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
-                cv2.putText(frame, mode_text, (coords[0] + 5, text_y_base + 20),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+        optimizer.zero_grad(set_to_none=True)         # Reset gradients from previous step
+        outputs = model(images)                       # Forward pass: Make a guess
+        loss = criterion(outputs, labels)             # Calculate error
+        loss.backward()                               # Calculate corrections
+        optimizer.step()                              #  Apply corrections
 
-            cv2.imshow("Jetson Adaptive Gate Pipeline", frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'): break
+        total_loss += loss.item() * images.size(0)
+        # preds holds the output with maximum probability
+        preds = outputs.argmax(dim=1)
+        correct += (preds == labels).sum().item()
+        total += labels.size(0)
 
-        cap.release()
-        cv2.destroyAllWindows()
+    return total_loss / total, correct / total
 
-    # ----------------------------------------------------------------------------
-    # close camera
-    # ----------------------------------------------------------------------------
-    def run_on_folder(self, folder_path, output_folder="baseline_with_gate"):
-        """Loops through every image in a folder and saves the visual results."""
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
-        else:
-            # CLEANUP BLOCK: Delete existing result images
-            print(f"Clearing old results in '{output_folder}' ")
-            for old_file in os.listdir(output_folder):
-                old_file_path = os.path.join(output_folder, old_file)
-                try:
-                    if os.path.isfile(old_file_path):
-                        os.remove(old_file_path)
-                except Exception as e:
-                    print(f"Could not delete {old_file}: {e}")
-            # --------------------------------------------------------
-        # Get all images in the folder
-        image_files = [f for f in os.listdir(folder_path) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-        print(f"Processing {len(image_files)} images from: {folder_path}")
+# Disable gradient calculation to save memory/speed during validation
+@torch.no_grad()
+def evaluate(model, loader, device, criterion):
+    model.eval()# Set model to evaluation mode (turns off Dropout/BatchNorm updates)
+    total_loss = 0.0
+    correct = 0
+    total = 0
 
-        for filename in image_files:
-            full_path = os.path.join(folder_path, filename)
-            frame = cv2.imread(full_path)
-            if frame is None: continue
+    for images, labels in loader:
+        # non_blocking=True: Tells CPU "Send this data to GPU and move to next line immediately."
+        # Because we used pin_memory=True in DataLoader, the transfer happens in background
+        # while the GPU processes the PREVIOUS batch.
+        images = images.to(device, non_blocking=True)
+        labels = labels.to(device, non_blocking=True)
 
-            # start  measure time -----------
-            t_start = time.time()
+        outputs = model(images) #take a guess
+        loss = criterion(outputs, labels) # how wrong the model is compared  to the output
 
-            # STEP 1: Detect Faces (YOLO)
-            results = self.detector.detect(frame, expand_ratio=0.30)
+        total_loss += loss.item() * images.size(0)
+        preds = outputs.argmax(dim=1)
+        correct += (preds == labels).sum().item()
+        total += labels.size(0)
 
-            for res in results:
+    return total_loss / total, correct / total
 
-                face = res["crop"]
-                coords = res["coords"]
 
-                # STEP 2: The Gate Decision
-                gate_conf, quality = self.gate.process(face)
+def train_model(model, train_loader,valid_loader,device,phase1_epochs: int = 5,phase2_epochs: int = 10,):
+    #  plain CE (sampler already handles imbalance well)
+    criterion = nn.CrossEntropyLoss()
 
-                if quality == "low_light":
-                    print("low_light")
-                    fixed_face = self.low_light_agent.process(face)
-                elif quality == "low_res":
-                    print("low_res")
-                    fixed_face = self.super_res_agent.process(face)
-                elif quality == "motion_blur":
-                    print("motion_blur")
-                    fixed_face = self.motion_blur_agent.process(face)
-                else:
-                    fixed_face = face  # "normal" class
-                    print("normal")
+    best_acc = 0.0
+    best_state = None # Variable to hold the 'brain' (weights) of the best performing model
 
-                # STEP 4: Identify Person (ResNet)
-                input_face = self.id_letterbox(fixed_face, target_size=224)
+    # ==========================================
+    # PHASE 1: "The Warm-Up" (Train Head Only)
+    # ==========================================
+    # Goal: Train the random classification layer to catch up with the pre-trained body.
+    set_trainable_params(model, phase=1)
+    # Optimizer: In Phase 1, we  use a higher Learning Rate (e.g., 1e-3)
+    # because the head starts from scratch and needs to learn fast.
+    optimizer = get_optimizer(model, phase=1)
+    # If the validation loss stops dropping (plateaus) for 2 epochs,
+    # cut the learning rate in half (factor=0.5) to find a more precise minimum.
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=2)
 
-                # CRITICAL: Convert BGR to RGB
-                input_face_rgb = cv2.cvtColor(input_face, cv2.COLOR_BGR2RGB)
+    for epoch in range(phase1_epochs):
+        #Train on known data
+        tr_loss, tr_acc = train_one_epoch(model, train_loader, device, optimizer, criterion)
+        #Test on unseen data
+        va_loss, va_acc = evaluate(model, valid_loader, device, criterion)
+        #Adjust Learning Rate based on validation loss
+        scheduler.step(va_loss)
 
-                tensor = torch.from_numpy(np.array(input_face_rgb)).permute(2, 0, 1).float().unsqueeze(0).to(self.device) / 255.0
+        print(f"[Phase 1] Epoch {epoch+1}/{phase1_epochs} | "
+              f"Train: loss={tr_loss:.4f} acc={tr_acc:.2%} | "
+              f"Valid: loss={va_loss:.4f} acc={va_acc:.2%}")
+        # 4. Save the "Best So Far"
+        # We copy the weights to CPU so we don't clog up GPU memory.
+        if va_acc > best_acc:
+            best_acc = va_acc
+            best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+    # ==========================================
+    # ---- Phase 2: fine-tune layer4 + FC
+    # ==========================================
+    #Allow the last block (layer4) to adapt specifically to faces
+    set_trainable_params(model, phase=2)
+    #  We re-initialize the optimizer, we use a VERY small Learning Rate
+    optimizer = get_optimizer(model, phase=2)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=2)
 
-                # CRITICAL: Apply ImageNet Normalization
-                tensor = (tensor - self.mean) / self.std
+    for epoch in range(phase2_epochs):
+        tr_loss, tr_acc = train_one_epoch(model, train_loader, device, optimizer, criterion)
+        va_loss, va_acc = evaluate(model, valid_loader, device, criterion)
+        scheduler.step(va_loss)
 
-                with torch.no_grad():
-                    output = self.id_model(tensor)
-                    prob = torch.nn.functional.softmax(output, dim=1)
-                    id_conf, pred = torch.max(prob, 1)
+        print(f"[Phase 2] Epoch {epoch+1}/{phase2_epochs} | "
+              f"Train: loss={tr_loss:.4f} acc={tr_acc:.2%} | "
+              f"Valid: loss={va_loss:.4f} acc={va_acc:.2%}")
 
-                # Threshold Check
-                if id_conf.item() < 0.40:
-                    person_name = "Unknown"
-                else:
-                    person_name = self.classes[pred.item()]
+        if va_acc > best_acc:
+            best_acc = va_acc
+            best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
 
-                t_end = time.time()
+    # restore best ,We overwrite the current model with the best saved weights.
+    if best_state is not None:
+        model.load_state_dict(best_state)
 
-                # --- STEP 5: Robust Labeling (Fixes vanishing text) ---
-                id_percent = id_conf.item() * 100
-                label = f"{person_name} ({id_percent:.1f}%)"
-                mode_text = f"Mode: {quality} ({gate_conf:.1f}%)"
+    print(f"Best valid accuracy: {best_acc:.2%}")
+    return model
 
-                # Green for recognized, Red for 'other'
-                color = (0, 255, 0) if person_name not in ["other", "Unknown"] else (0, 0, 255)
 
-                # 1. ALWAYS draw the green bounding box first
-                cv2.rectangle(frame, (coords[0], coords[1]), (coords[2], coords[3]), color, 2)
+# ------------------------------------
+# Main
+# ------------------------------------
+def main():
+    data_dir = "data/resnet dataset"
+    output_dir = "models"
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-                # 2. Logic to decide if text goes ABOVE or INSIDE the box
-                # If the face is closer than 60 pixels to the top, move text inside.
-                if coords[1] < 60:
-                    text_y_base = coords[1] + 25
-                else:
-                    text_y_base = coords[1] - 1
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Device:", device)
 
-                # 4. Draw the text labels
-                cv2.putText(frame, label, (coords[0] + 5, text_y_base),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
-                cv2.putText(frame, mode_text, (coords[0] + 5, text_y_base + 20),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+    train_loader, valid_loader, class_to_idx = get_dataloaders(data_dir, batch_size=32, num_workers=2)
+    print("Class to index mapping:", class_to_idx)
 
-                total_time = t_end - t_start
-                print(f"️ Total Pipeline Time: {total_time:.4f} sec")
-            # Save the result to new folder
-            save_path = os.path.join(output_folder, f"result_{filename}")
-            cv2.imwrite(save_path, frame)
-            print(f"Saved: {save_path}")
+    model = build_model(num_classes=len(class_to_idx))
+    model.to(device)
 
-        print(f"\n All results saved in the '{output_folder}' folder.")
+    model = train_model(
+        model,
+        train_loader,
+        valid_loader,
+        device,
+        phase1_epochs=25,
+        phase2_epochs=17,  # Note: Lower learning rate here!
+    )
+
+    # Save weights + mapping
+    model_path = os.path.join(output_dir, "id_classifier_resnet18.pt")
+    torch.save(model.state_dict(), model_path)
+    print("Saved model weights to:", model_path)
+
+    mapping_path = os.path.join(output_dir, "class_mapping.json")
+    with open(mapping_path, "w", encoding="utf-8") as f:
+        json.dump(class_to_idx, f, indent=2, ensure_ascii=False)
+    print("Saved class mapping to:", mapping_path)
 
 
 if __name__ == "__main__":
-    system = IntegratedGate()
-    # OPTION 1: Run on images (Choose this while camera is broken)
-    #test_folder = r"C:\Users\Your0124\pycharm_project_test\data\resnet_dataset\testpipline"
-    #system.run_on_folder(test_folder)
+    main()
 
-    # OPTION 2: Standard Video Stream (Use this later on Jetson Orin Nano)
-    system.run()
