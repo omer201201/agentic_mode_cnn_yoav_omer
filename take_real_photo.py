@@ -5,14 +5,15 @@ from YOLOv8 import FaceDetector
 
 # --- CONFIGURATION ---
 # We will save these directly into your Gate's training folder
-BASE_TRAIN_DIR = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset\train_test"
-MODEL_YOLO = "models/yolov8n-face.pt"
+BASE_TRAIN_DIR = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset\real_images_yoav"
+MODEL_YOLO = r"C:\Users\yoavt\PycharmProjects\final_projact\models\yolov8n-face.pt"
 
 # Ensure folders exist
 FOLDERS = {
     'normal': os.path.join(BASE_TRAIN_DIR, "normal"),
     'low_light': os.path.join(BASE_TRAIN_DIR, "low_light"),
-    'motion_blur': os.path.join(BASE_TRAIN_DIR, "motion_blur")
+    'motion_blur': os.path.join(BASE_TRAIN_DIR, "motion_blur"),
+    'low_rez': os.path.join(BASE_TRAIN_DIR, "low_rez")
 }
 for folder in FOLDERS.values():
     os.makedirs(folder, exist_ok=True)
@@ -40,10 +41,11 @@ def main():
     print("Press 'N' to save a NORMAL face")
     print("Press 'D' to save a DARK/LOW LIGHT face")
     print("Press 'B' to save a BLURRY face")
+    print("Press 'R' to save a LOW RES face ")
     print("Press 'Q' to QUIT")
     print("------------------\n")
 
-    counts = {'normal': 0, 'low_light': 0, 'motion_blur': 0}
+    counts = {'normal': 0, 'low_light': 0, 'motion_blur': 0, 'low_rez': 0}
 
     while True:
         ret, frame = cap.read()
@@ -73,8 +75,8 @@ def main():
 
         # Show instructions on screen
         cv2.putText(display_frame,
-                    f"Saved -> N: {counts['normal']} | D: {counts['low_light']} | B: {counts['motion_blur']}",
-                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+                    f"Saved -> N: {counts['normal']} | D: {counts['low_light']} | B: {counts['motion_blur']} | R: {counts['low_rez']}",
+                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 
         cv2.imshow("Gate Data Collector", display_frame)
 
@@ -106,11 +108,17 @@ def main():
                 counts['motion_blur'] += 1
                 print("Saved Blurry Face")
 
+            elif key == ord('r'):
+                # Saving the unmodified face_to_save for manual processing later
+                path = os.path.join(FOLDERS['low_rez'], f"real_lowrez_{timestamp}.jpg")
+                cv2.imwrite(path, face_to_save)
+                counts['low_rez'] += 1
+                print("Saved Low-Rez Face (Original Image)")
+
     cap.release()
     cv2.destroyAllWindows()
     print("\nData collection complete!")
 
 
 if __name__ == "__main__":
-
     main()
