@@ -1,4 +1,6 @@
+import sys
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import cv2
 import numpy as np
 
@@ -16,7 +18,9 @@ class DynamicLowLightAgent:
 
         # Y-axis: The parameters you want at those exact brightness levels
         clip_limits =       [4.0, 4.0, 3.0, 3.0, 2.0, 1.0, 0.0]
-        gammas =            [0.70, 0.70, 0.80, 0.85, 1.0, 1.0, 1.0]
+        ##gammas =            [0.70, 0.70, 0.80, 0.85, 1.0, 1.0, 1.0]
+        gammas =            [2.2, 2.0, 1.8, 1.5, 1.0, 1.0, 1.0]
+
         denoises =          [15, 15, 12, 10, 5, 0, 0]
 
         # np.interp smoothly calculates the exact value based on where avg_brightness falls
@@ -79,7 +83,7 @@ def main():
         agent = DynamicLowLightAgent()
 
         # 2. Load a dark image
-        img_path = r"C:\Users\Your0124\pycharm_project_test\data\raw_data_4_yolo\testpipline_after_yolo\crop_0_nosie3.jpg"
+        img_path = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\data\omer\low_light\omer_low_light_54.jpg"
 
         if not os.path.exists(img_path):
             print(f" Error: Image not found at {img_path}")

@@ -1,5 +1,7 @@
 import cv2
+import sys
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import numpy as np
 
 
@@ -46,14 +48,15 @@ class SuperResAgent:
         # This will now use the sharper model (ESPCN/LapSRN)
         result = self.sr.upsample(face_crop)
 
-        # Apply a tiny bit of sharpening after AI upscale
-        # This helps "pop" the edges of eyes and mouths
-        kernel = np.array([[0, -1, 0],
-                           [-1, 5, -1],
-                           [0, -1, 0]])
-        result = cv2.filter2D(result, -1, kernel)
+
+
+        gaussian = cv2.GaussianBlur(result, (0, 0), 2.0)
+        # addWeighted formula: (original * 1.5) + (blurred * -0.5) + 0
+        # This increases sharpness by 50% without creating the severe halos of the 3x3 kernel
+        result = cv2.addWeighted(result, 1.5, gaussian, -0.5, 0)
 
         return result
+
 
 
 def main():
@@ -67,7 +70,7 @@ def main():
         return
 
     # Load  low-res image...
-    img_path = r"C:\Users\Your0124\pycharm_project_test\data\resnet_dataset\train\yoav\988ffa59-0f64-4879-bb72-f8fba28dcbd6.JPG"
+    img_path = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\data\omer\low_res\omer_low_res_10.jpg"
     if not os.path.exists(img_path):
         print("Image not found")
         return

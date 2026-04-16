@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
+import sys
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class MotionBlurAgent:
     def __init__(self, blur_threshold=250.0):
@@ -51,7 +53,7 @@ def main():
     agent = MotionBlurAgent()
 
     # 2. Path to your REAL blurry image
-    img_path = r"C:\Users\Your0124\pycharm_project_test\data\gate_dataset\train\motion_blur\8_29830.png"
+    img_path = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\data\omer\low_res\omer_low_res_13.jpg"
 
     if not os.path.exists(img_path):
         print(f" Error: Image not found at {img_path}")
