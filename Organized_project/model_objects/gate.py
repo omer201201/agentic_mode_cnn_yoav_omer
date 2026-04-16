@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import cv2
 import torchvision.transforms as transforms
+import numpy as np
 
 # ==========================================
 # 1. The Neural Network
@@ -121,7 +122,26 @@ class AdaptiveGate:
         h, w = face_crop.shape[:2]
         if h < 40 or w < 40:
             return 100, "low_res"
+        # 2. LOW LIGHT CHECK (Brightness)
+        # Convert to LAB to isolate perceptual lightness from color.
+        # This matches the logic you already use in your LowLightAgent.
+        lab = cv2.cvtColor(face_crop, cv2.COLOR_BGR2LAB)
+        l_channel, _, _ = cv2.split(lab)
+        avg_brightness = np.mean(l_channel)
 
+        if avg_brightness < 45:  # Tune this based on your dataset
+            return 100 , "low_light"
+        
+        gray = cv2.cvtColor(face_crop, cv2.COLOR_BGR2GRAY)
+        
+        # We apply a very slight Gaussian blur before the Laplacian check.
+        # This smooths out minor sensor noise without destroying real structural edges.
+        smoothed_gray = cv2.GaussianBlur(gray, (3, 3), 0)
+        laplacian_var = cv2.Laplacian(smoothed_gray, cv2.CV_64F).var()
+        '''
+        if laplacian_var < 30:  # Lower variance = fewer sharp edges = blurry
+            return 100 , "motion_blur"
+        '''
         # STEP 1: Apply Smart Resizing
         # We resize to 128x128 because that's what the model expects
         processed_face = self.smart_resize(face_crop, target_size=128)
