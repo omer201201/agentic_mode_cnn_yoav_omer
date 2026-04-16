@@ -1,21 +1,23 @@
+import sys
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import cv2
 import torch
 import numpy as np
 import json
-from YOLOv8 import FaceDetector
-from ResNet import build_model
-from low_light_agent import DynamicLowLightAgent
-from motion_blur_agent import MotionBlurAgent
-from low_res_agent import SuperResAgent
+from model_objects.YOLOv8 import FaceDetector
+from model_objects.ResNet import build_model
+from restoration_agents.low_light_agent import DynamicLowLightAgent
+from restoration_agents.motion_blur_agent import MotionBlurAgent
+from restoration_agents.low_res_agent import SuperResAgent
 from generate_data.generate_data_for_gate import smart_resize
-from gate import AdaptiveGate
+from model_objects.gate import AdaptiveGate
 import time
 
 # ---  CONFIGURATION ---
 MODEL_PATHS = {
     "yolo": "models/yolov8n-face.pt",
-    "resnet": "models/id_classifier_resnet18_test.pt",
+    "resnet": "models/resnet18_3.pt",
     "gate": "models/gate_model_best_3.pth",
     "mapping": "models/class_mapping.json",
     "sr_pb": "models/ESPCN_x3.pb"
@@ -250,7 +252,7 @@ class IntegratedGate:
 if __name__ == "__main__":
     system = IntegratedGate()
     # OPTION 1: Run on images (Choose this while camera is broken)
-    test_folder = r"C:\Users\Your0124\pycharm_project_test\data\resnet_dataset\testpipline"
+    test_folder = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\data\omer\normal"
     system.run_on_folder(test_folder)
 
     # OPTION 2: Standard Video Stream (Use this later on Jetson Orin Nano)
