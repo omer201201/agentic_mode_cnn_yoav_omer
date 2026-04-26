@@ -1,0 +1,64 @@
+Image,Face_Index,BASE_Name,BASE_Conf,BASE_Time(ms),Gate Decision,GATE_Name,GATE_Conf,GATE_Time(ms),Conf_Gain,Time_Cost(ms)
+omer_motion_blur_363.jpg,"(0, 0, 224, 224)",Unknown,0.5972,0.00,motion_blur,omer,0.6944,15.82,9.72,15.82
+omer_motion_blur_364.jpg,"(0, 0, 224, 224)",Unknown,0.4506,15.64,motion_blur,omer,0.9478,15.86,49.72,0.22
+omer_motion_blur_365.jpg,"(0, 0, 224, 224)",other,0.9147,33.68,motion_blur,other,0.6654,190.12,-24.94,156.44
+omer_motion_blur_367.jpg,"(2, 0, 224, 224)",omer,0.7421,139.77,motion_blur,omer,0.9350,113.54,19.29,-26.23
+omer_motion_blur_369.jpg,"(9, 0, 224, 224)",Unknown,0.5225,21.94,motion_blur,omer,0.8814,37.30,35.89,15.35
+omer_motion_blur_370.jpg,"(0, 0, 224, 224)",Unknown,0.3827,31.79,motion_blur,omer,0.6207,47.65,23.80,15.86
+omer_motion_blur_371.jpg,"(0, 0, 224, 224)",omer,0.9544,19.95,motion_blur,omer,0.9923,31.80,3.79,11.85
+omer_motion_blur_374.jpg,"(13, 0, 224, 224)",other,0.8323,32.99,motion_blur,other,0.6042,44.27,-22.80,11.28
+omer_motion_blur_376.jpg,"(0, 0, 224, 224)",other,0.7164,31.58,motion_blur,Unknown,0.4845,31.74,-23.19,0.16
+omer_motion_blur_377.jpg,"(0, 0, 224, 224)",Unknown,0.5644,21.98,motion_blur,omer,0.8543,35.19,28.99,13.21
+omer_motion_blur_378.jpg,"(0, 0, 224, 224)",Unknown,0.3689,32.00,motion_blur,omer,0.6328,31.56,26.38,-0.45
+omer_motion_blur_379.jpg,"(0, 0, 224, 224)",Unknown,0.5319,22.22,motion_blur,omer,0.7126,3.76,18.07,-18.46
+omer_motion_blur_380.jpg,"(0, 0, 224, 224)",omer,0.9910,0.00,motion_blur,omer,0.9965,15.80,0.55,15.80
+omer_motion_blur_381.jpg,"(0, 0, 224, 224)",omer,0.9328,5.75,motion_blur,omer,0.9802,0.00,4.74,-5.75
+omer_motion_blur_382.jpg,"(0, 0, 224, 224)",Unknown,0.5567,6.01,motion_blur,omer,0.8581,5.76,30.13,-0.26
+omer_motion_blur_383.jpg,"(0, 0, 224, 224)",omer,0.9162,0.00,motion_blur,omer,0.9861,18.03,6.99,18.03
+omer_motion_blur_384.jpg,"(0, 0, 224, 224)",omer,0.9161,5.76,motion_blur,omer,0.9744,0.00,5.83,-5.76
+omer_motion_blur_385.jpg,"(0, 0, 224, 224)",Unknown,0.5067,8.41,motion_blur,omer,0.9613,17.97,45.46,9.55
+omer_motion_blur_386.jpg,"(0, 0, 224, 224)",Unknown,0.5744,8.31,motion_blur,omer,0.9262,19.22,35.18,10.91
+omer_motion_blur_387.jpg,"(0, 0, 224, 224)",Unknown,0.3753,17.80,motion_blur,omer,0.6969,14.04,32.16,-3.76
+omer_motion_blur_388.jpg,"(0, 0, 224, 224)",omer,0.7722,0.00,motion_blur,omer,0.8923,19.02,12.01,19.02
+omer_motion_blur_389.jpg,"(0, 0, 224, 224)",omer,0.6446,2.01,motion_blur,omer,0.8718,16.31,22.72,14.30
+omer_motion_blur_391.jpg,"(0, 0, 224, 224)",omer,0.8487,0.00,motion_blur,omer,0.9656,21.97,11.69,21.97
+omer_motion_blur_392.jpg,"(0, 0, 224, 224)",Unknown,0.4145,2.01,motion_blur,omer,0.8007,21.64,38.62,19.62
+omer_motion_blur_394.jpg,"(0, 0, 224, 224)",other,0.7568,0.00,motion_blur,omer,0.6586,22.73,-9.82,22.73
+omer_motion_blur_396.jpg,"(0, 0, 224, 224)",omer,0.6959,15.70,motion_blur,omer,0.9036,15.73,20.77,0.04
+omer_motion_blur_397.jpg,"(0, 0, 224, 224)",Unknown,0.4274,15.71,motion_blur,yoav,0.7371,15.63,30.97,-0.08
+omer_motion_blur_398.jpg,"(0, 0, 224, 224)",Unknown,0.5088,5.78,motion_blur,Unknown,0.5677,0.00,5.89,-5.78
+omer_motion_blur_399.jpg,"(0, 0, 224, 224)",Unknown,0.4986,14.15,motion_blur,omer,0.6953,16.87,19.66,2.71
+omer_motion_blur_401.jpg,"(0, 0, 224, 224)",other,0.7440,0.00,motion_blur,omer,0.6849,15.71,-5.91,15.71
+omer_motion_blur_402.jpg,"(0, 0, 224, 224)",omer,0.8907,15.66,motion_blur,omer,0.9498,15.71,5.91,0.05
+omer_motion_blur_403.jpg,"(0, 0, 224, 224)",Unknown,0.3866,6.02,motion_blur,Unknown,0.5062,15.81,11.96,9.79
+omer_motion_blur_404.jpg,"(0, 0, 224, 224)",Unknown,0.5837,15.64,motion_blur,omer,0.6718,15.65,8.80,0.01
+omer_motion_blur_405.jpg,"(0, 0, 224, 224)",omer,0.6298,6.02,motion_blur,omer,0.7811,7.76,15.12,1.74
+omer_motion_blur_406.jpg,"(0, 0, 224, 224)",Unknown,0.4739,11.99,motion_blur,omer,0.8614,5.22,38.75,-6.77
+omer_motion_blur_407.jpg,"(0, 0, 224, 224)",other,0.7096,0.00,motion_blur,omer,0.7893,15.66,7.97,15.66
+omer_motion_blur_409.jpg,"(0, 0, 224, 224)",omer,0.9725,0.00,motion_blur,omer,0.9841,15.90,1.15,15.90
+omer_motion_blur_410.jpg,"(0, 0, 224, 224)",omer,0.8927,7.08,motion_blur,omer,0.8819,17.05,-1.08,9.97
+omer_motion_blur_411.jpg,"(0, 0, 224, 224)",omer,0.6709,12.43,motion_blur,omer,0.8024,18.06,13.14,5.64
+omer_motion_blur_412.jpg,"(0, 0, 224, 224)",Unknown,0.4589,7.79,motion_blur,omer,0.7268,15.66,26.80,7.87
+omer_motion_blur_412.jpg,"(0, 0, 191, 224)",Unknown,0.4165,0.00,motion_blur,omer,0.6764,15.66,25.99,15.66
+omer_motion_blur_413.jpg,"(0, 0, 224, 224)",omer,0.8453,11.66,motion_blur,omer,0.9254,47.85,8.01,36.19
+omer_motion_blur_414.jpg,"(0, 0, 224, 224)",omer,0.8051,21.65,motion_blur,omer,0.9491,49.34,14.40,27.69
+omer_motion_blur_415.jpg,"(0, 0, 224, 224)",yoav,0.7295,21.29,motion_blur,omer,0.7709,51.85,4.14,30.56
+omer_motion_blur_416.jpg,"(0, 0, 224, 224)",omer,0.6159,33.80,motion_blur,omer,0.7997,55.04,18.39,21.25
+omer_motion_blur_417.jpg,"(0, 0, 224, 224)",omer,0.8232,26.63,motion_blur,omer,0.8997,48.34,7.64,21.70
+omer_motion_blur_418.jpg,"(0, 0, 223, 224)",Unknown,0.5473,25.25,motion_blur,omer,0.9920,48.26,44.47,23.02
+omer_motion_blur_419.jpg,"(0, 0, 224, 224)",Unknown,0.4930,35.65,motion_blur,omer,0.9128,27.55,41.98,-8.10
+
+
+--- SUMMARY STATISTICS ---,
+Metric,Value
+Total Faces Processed,48
+Basic Pipeline Accuracy,39.58%
+Gated Pipeline Accuracy,87.50%
+Net Accuracy Change,+47.92%
+Average Time Basic (ms),16.03
+Average Time Gated (ms),27.95
+Time Cost of Gate (ms),11.91
+Flips: Bad to Good (Fixed),23
+Flips: Good to Bad (Ruined),0
+Avg Conf Change (Both Correct),+10.06%
+Avg Conf Change (Both Wrong),-3.69%

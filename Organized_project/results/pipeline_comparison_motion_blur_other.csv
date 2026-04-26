@@ -1,0 +1,21 @@
+Image,Face_Index,BASE_Name,BASE_Conf,BASE_Time(ms),Gate Decision,GATE_Name,GATE_Conf,GATE_Time(ms),Conf_Gain,Time_Cost(ms)
+real_blur_1773066404197.jpg,"(0, 0, 128, 128)",other,0.9932,9.75,motion_blur,other,0.9328,6.02,-6.04,-3.73
+real_blur_1773067569329.jpg,"(0, 0, 128, 128)",other,0.9868,1.75,low_light,other,0.7464,15.65,-24.03,13.90
+real_blur_1773067604530.jpg,"(0, 0, 128, 128)",other,0.9746,7.73,motion_blur,other,0.9428,11.09,-3.18,3.36
+real_blur_1773067627284.jpg,"(0, 0, 128, 128)",other,0.9788,6.02,motion_blur,other,0.7401,9.78,-23.87,3.76
+real_blur_1773067627559.jpg,"(0, 0, 128, 128)",other,0.9959,7.33,motion_blur,other,0.6226,12.03,-37.33,4.71
+
+
+--- SUMMARY STATISTICS ---,
+Metric,Value
+Total Faces Processed,5
+Basic Pipeline Accuracy,100.00%
+Gated Pipeline Accuracy,100.00%
+Net Accuracy Change,+0.00%
+Average Time Basic (ms),6.51
+Average Time Gated (ms),10.91
+Time Cost of Gate (ms),4.40
+Flips: Bad to Good (Fixed),0
+Flips: Good to Bad (Ruined),0
+Avg Conf Change (Both Correct),-18.89%
+Avg Conf Change (Both Wrong),+0.00%

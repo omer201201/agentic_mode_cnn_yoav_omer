@@ -1,8 +1,10 @@
 import sys
 import os
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import cv2
 import numpy as np
+from tqdm import tqdm
 
 
 class DynamicLowLightAgent:
@@ -17,11 +19,10 @@ class DynamicLowLightAgent:
         brightness_levels = [0, 20, 30, 40, 80, 100, 255]
 
         # Y-axis: The parameters you want at those exact brightness levels
-        clip_limits =       [4.0, 4.0, 3.0, 3.0, 2.0, 1.0, 0.0]
-        ##gammas =            [0.70, 0.70, 0.80, 0.85, 1.0, 1.0, 1.0]
-        gammas =            [2.2, 2.0, 1.8, 1.5, 1.0, 1.0, 1.0]
-
-        denoises =          [15, 15, 12, 10, 5, 0, 0]
+        clip_limits = [4.0, 4.0, 3.0, 3.0, 2.0, 1.0, 0.0]
+        # gammas =            [0.70, 0.70, 0.80, 0.85, 1.0, 1.0, 1.0]
+        gammas = [2.2, 2.0, 1.8, 1.5, 1.0, 1.0, 1.0]
+        denoises = [15, 15, 12, 10, 5, 0, 0]
 
         # np.interp smoothly calculates the exact value based on where avg_brightness falls
         clip_limit = np.interp(avg_brightness, brightness_levels, clip_limits)
@@ -35,7 +36,7 @@ class DynamicLowLightAgent:
     def process(self, image):
 
         if image is None: return None
-        #LAB - format for allows the agent to isolate the L (Lightness) channel
+        # LAB - format for allows the agent to isolate the L (Lightness) channel
         lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
         l, a, b = cv2.split(lab)
 
@@ -75,40 +76,90 @@ class DynamicLowLightAgent:
 
         return final_bgr
 
-
-def main():
-        print("Testing Low Light Agent")
-
-        # 1. Initialize the Agent
-        agent = DynamicLowLightAgent()
-
-        # 2. Load a dark image
-        img_path = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\data\omer\low_light\omer_low_light_54.jpg"
-
-        if not os.path.exists(img_path):
-            print(f" Error: Image not found at {img_path}")
+    def process_directory(self, input_dir, output_dir):
+        # Check if the input directory exists
+        if not os.path.exists(input_dir):
+            print(f"Error: Input directory '{input_dir}' does not exist.")
             return
 
-        original = cv2.imread(img_path)
+        # Create the output directory if it doesn't exist
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
 
-        # 3. Run the Agent
-        result = agent.process(original)
+        # Find all valid image files in the directory
+        valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.JPG', '.JPEG', '.PNG')
+        image_files = [f for f in os.listdir(input_dir) if f.endswith(valid_extensions)]
 
-        # 4. Show Side-by-Side Comparison
-        # We stack them horizontally (Left: Original, Right: Fixed)
-        comparison = np.hstack((original, result))
+        if not image_files:
+            print(f"No images found in {input_dir}.")
+            return
 
-        # Optional: Resize if the image is too big for screen
-        h, w = comparison.shape[:2]
-        if w > 1500:
-            scale = 1500 / w
-            comparison = cv2.resize(comparison, None, fx=scale, fy=scale)
+        print(f"Found {len(image_files)} images. Starting batch enhancement...")
 
-        cv2.imshow("Left: Original (Dark) | Right: Agent Result (Enhanced)", comparison)
+        # Iterate over each image with a visual progress bar (tqdm)
+        for filename in tqdm(image_files, desc="Processing Images"):
+            img_path = os.path.join(input_dir, filename)
 
-        print("Press any key to close...")
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+            # Read the image
+            img = cv2.imread(img_path)
+            if img is None:
+                continue
+
+            try:
+                # Apply the enhancement process to the image
+                enhanced_img = self.process(img)
+
+                # Save the enhanced image to the output directory
+                save_path = os.path.join(output_dir, filename)
+                cv2.imwrite(save_path, enhanced_img)
+            except Exception as e:
+                print(f"\nError processing {filename}: {e}")
+
+        print(f"\nFinished processing! All images saved to: {output_dir}")
+
+
+def main():
+    print("Testing Low Light Agent")
+
+    # 1. Initialize the Agent
+    agent = DynamicLowLightAgent()
+    '''
+    # 2. Load a dark image
+    img_path = r"C:Users\yoavt\PycharmProjects\final_projact\data\system_test\omer\low_light\omer_low_light_302.jpg"
+    if not os.path.exists(img_path):
+        print(f" Error: Image not found at {img_path}")
+        return
+
+    original = cv2.imread(img_path)
+
+    # 3. Run the Agent
+    result = agent.process(original)
+
+    # 4. Show Side-by-Side Comparison
+    # We stack them horizontally (Left: Original, Right: Fixed)
+    comparison = np.hstack((original, result))
+
+    # Optional: Resize if the image is too big for screen
+    h, w = comparison.shape[:2]
+    if w > 1500:
+        scale = 1500 / w
+        comparison = cv2.resize(comparison, None, fx=scale, fy=scale)
+
+    cv2.imshow("Left: Original (Dark) | Right: Agent Result (Enhanced)", comparison)
+
+    print("Press any key to close...")
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    '''
+    # --- Mode 2: Processing an entire directory ---
+
+    print("Running batch process...")
+    # Update these paths to your actual local directories
+    input_folder = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset\real_images_omer\low_light"
+    output_folder = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset\omer_after_agent"
+
+    agent.process_directory(input_folder, output_folder)
+
 
 if __name__ == "__main__":
     main()

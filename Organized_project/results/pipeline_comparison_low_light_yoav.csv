@@ -1,0 +1,64 @@
+Image,Face_Index,BASE_Name,BASE_Conf,BASE_Time(ms),Gate Decision,GATE_Name,GATE_Conf,GATE_Time(ms),Conf_Gain,Time_Cost(ms)
+yoav_low_light_50.jpg,"(0, 0, 224, 224)",other,0.7365,427.90,low_light,yoav,0.9987,128.35,26.23,-299.55
+yoav_low_light_51.jpg,"(0, 0, 224, 224)",other,0.9149,6.02,low_light,yoav,0.8025,7.76,-11.24,1.74
+yoav_low_light_52.jpg,"(0, 0, 223, 224)",yoav,0.6763,5.76,low_light,yoav,0.9546,14.04,27.83,8.28
+yoav_low_light_53.jpg,"(0, 0, 224, 224)",other,0.7965,0.00,low_light,yoav,0.9862,16.12,18.97,16.12
+yoav_low_light_54.jpg,"(0, 0, 224, 224)",Unknown,0.5825,8.02,low_light,yoav,0.9534,13.78,37.08,5.75
+yoav_low_light_55.jpg,"(0, 0, 223, 224)",yoav,0.7734,8.02,low_light,yoav,0.9922,13.80,21.88,5.78
+yoav_low_light_56.jpg,"(0, 0, 222, 224)",other,0.6017,7.76,low_light,yoav,0.9950,14.05,39.33,6.29
+yoav_low_light_57.jpg,"(0, 0, 222, 224)",yoav,0.8915,6.02,low_light,yoav,0.9929,13.78,10.14,7.76
+yoav_low_light_58.jpg,"(0, 0, 223, 224)",other,0.7289,8.02,low_light,yoav,0.9932,7.76,26.43,-0.26
+yoav_low_light_59.jpg,"(0, 0, 224, 224)",Unknown,0.5189,6.02,low_light,yoav,0.9484,9.78,42.95,3.76
+yoav_low_light_60.jpg,"(0, 0, 222, 224)",yoav,0.7672,7.77,low_light,yoav,0.9988,9.77,23.16,2.00
+yoav_low_light_61.jpg,"(0, 0, 222, 224)",yoav,0.8579,7.79,low_light,yoav,0.9964,11.65,13.85,3.86
+yoav_low_light_62.jpg,"(0, 0, 224, 224)",other,0.9460,6.02,low_light,yoav,0.6290,9.67,-31.71,3.65
+yoav_low_light_63.jpg,"(0, 0, 223, 224)",other,0.6642,0.00,low_light,yoav,0.9878,15.64,32.36,15.64
+yoav_low_light_64.jpg,"(0, 0, 223, 224)",other,0.7836,7.77,low_light,yoav,0.8490,12.05,6.54,4.29
+yoav_low_light_65.jpg,"(0, 0, 224, 224)",Unknown,0.5237,7.77,low_light,Unknown,0.5104,10.06,-1.33,2.29
+yoav_low_light_66.jpg,"(0, 0, 224, 224)",other,0.8994,0.00,low_light,yoav,0.8936,18.00,-0.58,18.00
+yoav_low_light_67.jpg,"(0, 0, 224, 224)",other,0.6174,8.04,low_light,Unknown,0.5975,11.79,-2.00,3.74
+yoav_low_light_68.jpg,"(0, 1, 222, 224)",other,0.8978,6.01,low_light,omer,0.9459,9.77,4.82,3.75
+yoav_low_light_69.jpg,"(0, 3, 224, 224)",yoav,0.9949,7.76,low_light,yoav,0.9980,8.02,0.31,0.26
+yoav_low_light_70.jpg,"(1, 2, 224, 224)",yoav,0.9417,10.05,low_light,yoav,0.9874,15.82,4.57,5.76
+yoav_low_light_71.jpg,"(0, 0, 224, 224)",yoav,0.9760,7.78,low_light,yoav,0.9997,14.06,2.37,6.27
+yoav_low_light_72.jpg,"(0, 0, 224, 224)",yoav,0.7092,7.77,low_light,yoav,0.6730,13.78,-3.61,6.01
+yoav_low_light_73.jpg,"(0, 0, 224, 224)",yoav,0.6120,7.76,low_light,yoav,0.7289,8.02,11.69,0.26
+yoav_low_light_74.jpg,"(0, 0, 224, 224)",other,0.9407,20.01,low_light,yoav,0.8722,10.03,-6.85,-9.98
+yoav_low_light_75.jpg,"(0, 0, 224, 224)",yoav,0.9326,7.80,low_light,yoav,0.9995,12.06,6.70,4.26
+yoav_low_light_76.jpg,"(0, 0, 224, 224)",yoav,0.9897,15.90,low_light,yoav,0.9993,17.66,0.97,1.75
+yoav_low_light_77.jpg,"(1, 0, 223, 222)",yoav,0.9864,0.00,low_light,yoav,0.9995,25.68,1.31,25.68
+yoav_low_light_78.jpg,"(0, 2, 224, 224)",yoav,0.9821,8.02,low_light,yoav,0.9983,11.77,1.62,3.75
+yoav_low_light_79.jpg,"(0, 1, 224, 224)",yoav,0.9988,7.77,low_light,yoav,0.9993,8.02,0.05,0.26
+yoav_low_light_80.jpg,"(0, 0, 224, 224)",yoav,0.9980,8.03,low_light,yoav,0.9993,11.81,0.13,3.79
+yoav_low_light_81.jpg,"(0, 1, 224, 224)",yoav,0.9919,9.77,low_light,yoav,0.9986,11.78,0.67,2.01
+yoav_low_light_82.jpg,"(7, 1, 224, 219)",yoav,0.9264,5.76,low_light,yoav,0.9995,11.78,7.31,6.02
+yoav_low_light_83.jpg,"(0, 0, 224, 224)",yoav,0.8235,8.02,low_light,yoav,0.9997,7.76,17.62,-0.26
+yoav_low_light_84.jpg,"(0, 0, 224, 224)",yoav,0.9366,14.06,low_light,yoav,0.9991,14.04,6.26,-0.03
+yoav_low_light_85.jpg,"(0, 0, 224, 224)",yoav,0.9785,8.03,low_light,yoav,0.9867,15.79,0.82,7.76
+yoav_low_light_86.jpg,"(0, 0, 224, 224)",Unknown,0.4982,7.77,low_light,Unknown,0.5899,11.79,9.17,4.03
+yoav_low_light_87.jpg,"(0, 0, 224, 216)",Unknown,0.4638,7.77,low_light,yoav,0.7454,10.03,28.15,2.26
+yoav_low_light_88.jpg,"(0, 0, 224, 224)",yoav,0.7548,6.01,low_light,yoav,0.7697,9.76,1.50,3.75
+yoav_low_light_89.jpg,"(0, 0, 224, 224)",Unknown,0.5026,16.11,low_light,yoav,0.9673,0.00,46.47,-16.11
+yoav_low_light_90.jpg,"(0, 0, 224, 224)",yoav,0.9061,5.76,low_light,yoav,0.8593,0.00,-4.69,-5.76
+yoav_low_light_91.jpg,"(1, 1, 224, 224)",yoav,0.9816,1.75,low_light,yoav,0.9997,17.99,1.81,16.23
+yoav_low_light_94.jpg,"(0, 0, 224, 224)",yoav,0.8434,6.02,low_light,yoav,0.7026,9.77,-14.08,3.75
+yoav_low_light_95.jpg,"(0, 0, 223, 224)",yoav,0.9254,0.00,low_light,yoav,0.9976,15.69,7.22,15.69
+yoav_low_light_96.jpg,"(0, 0, 224, 224)",yoav,0.9717,21.92,low_light,yoav,0.9989,9.77,2.72,-12.15
+yoav_low_light_97.jpg,"(0, 0, 224, 224)",yoav,0.8702,6.02,low_light,yoav,0.9994,11.80,12.92,5.78
+yoav_low_light_98.jpg,"(0, 0, 219, 224)",other,0.8660,7.77,low_light,yoav,0.9295,10.03,6.35,2.26
+yoav_low_light_99.jpg,"(0, 0, 224, 224)",yoav,0.8199,6.02,low_light,omer,0.6983,3.75,-12.16,-2.26
+
+
+--- SUMMARY STATISTICS ---,
+Metric,Value
+Total Faces Processed,48
+Basic Pipeline Accuracy,60.42%
+Gated Pipeline Accuracy,89.58%
+Net Accuracy Change,+29.17%
+Average Time Basic (ms),16.29
+Average Time Gated (ms),14.08
+Time Cost of Gate (ms),-2.21
+Flips: Bad to Good (Fixed),15
+Flips: Good to Bad (Ruined),1
+Avg Conf Change (Both Correct),+5.82%
+Avg Conf Change (Both Wrong),+2.67%

@@ -50,7 +50,7 @@ def load_final_model(model_path, num_classes):
 test_tfms = transforms.Compose([
     # We no longer need Resize here if we use the padding function below
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 
@@ -88,9 +88,9 @@ def batch_test(folder_path, model, class_names):
 
 
 if __name__ == "__main__":
-    TEST_DIR = "data/resnet_dataset/test1"
-    MODEL_FILE = "models/id_classifier_resnet18.pt"  #trained weights
-    MAPPING_FILE = "models/class_mapping.json"  # folder map
+    TEST_DIR = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset\real_test\test_for_gate"
+    MODEL_FILE = r"C:\Users\yoavt\PycharmProjects\final_projact\models\resnet18_2.pt"  #trained weights
+    MAPPING_FILE = r"C:\Users\yoavt\PycharmProjects\final_projact\models\class_mapping.json"  # folder map
 
     try:
         classes = get_class_names(MAPPING_FILE)

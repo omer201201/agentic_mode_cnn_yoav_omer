@@ -6,7 +6,7 @@ import numpy as np
 
 
 class SuperResAgent:
-    def __init__(self, model_path="models/ESPCN_x3.pb", scale=3, algo_name="espcn"):
+    def __init__(self, model_path=r"C:\Users\yoavt\PycharmProjects\final_projact\models\ESPCN_x3.pb", scale=3, algo_name="espcn"):
         """
         Initializes the Super Resolution Agent with support for multiple models.
         algo_name options: 'fsrcnn', 'espcn', 'lapsrn', 'edsr'

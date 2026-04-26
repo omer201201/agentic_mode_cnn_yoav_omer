@@ -1,12 +1,12 @@
 import os
 import cv2
-from gate import AdaptiveGate
+from model_objects.gate import AdaptiveGate
 
 
 def run_gate_pipeline():
     # 1. SETUP
-    folder_path = r"C:\Users\Your0124\pycharm_project_test\data\resnet_dataset\test2"
-    model_path = "models/gate_model_best_test2_diffrent_lowrez_lightdark_bulr.pth"
+    folder_path = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset\real_test\test_for_gate"
+    model_path = r"C:\Users\yoavt\PycharmProjects\final_projact\models\gate_model_best_2.pth"
 
     gate = AdaptiveGate(model_path=model_path)
 

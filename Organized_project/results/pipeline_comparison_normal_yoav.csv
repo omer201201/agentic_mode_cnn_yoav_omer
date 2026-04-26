@@ -1,0 +1,57 @@
+Image,Face_Index,BASE_Name,BASE_Conf,BASE_Time(ms),Gate Decision,GATE_Name,GATE_Conf,GATE_Time(ms),Conf_Gain,Time_Cost(ms)
+yoav_normal_1.jpg,"(0, 0, 224, 224)",yoav,0.9997,40.06,normal,yoav,0.9997,118.41,0.00,78.35
+yoav_normal_10.jpg,"(0, 0, 224, 224)",yoav,0.9988,33.29,low_light,yoav,0.9935,54.35,-0.53,21.06
+yoav_normal_11.jpg,"(0, 0, 224, 224)",yoav,0.9988,29.86,normal,yoav,0.9988,55.86,0.00,26.00
+yoav_normal_12.jpg,"(0, 0, 224, 224)",yoav,0.9998,35.74,normal,yoav,0.9998,45.48,0.00,9.75
+yoav_normal_13.jpg,"(0, 0, 224, 224)",yoav,0.9999,23.98,normal,yoav,0.9999,43.68,0.00,19.70
+yoav_normal_14.jpg,"(0, 0, 224, 224)",yoav,0.9994,26.06,normal,yoav,0.9994,41.55,0.00,15.49
+yoav_normal_15.jpg,"(0, 0, 224, 224)",yoav,1.0000,25.80,low_light,yoav,1.0000,43.67,-0.00,17.87
+yoav_normal_16.jpg,"(0, 0, 224, 224)",yoav,0.9997,40.16,low_light,yoav,0.9995,43.27,-0.02,3.12
+yoav_normal_17.jpg,"(0, 0, 224, 224)",yoav,0.9999,33.84,low_light,yoav,0.9999,47.71,-0.01,13.86
+yoav_normal_18.jpg,"(2, 0, 224, 224)",yoav,0.9963,27.76,low_light,yoav,0.9909,43.67,-0.54,15.90
+yoav_normal_19.jpg,"(0, 0, 224, 224)",yoav,0.9999,25.98,low_light,yoav,0.9998,41.78,-0.00,15.80
+yoav_normal_2.jpg,"(0, 0, 224, 224)",yoav,1.0000,8.01,low_light,yoav,1.0000,9.77,-0.00,1.75
+yoav_normal_20.jpg,"(0, 0, 224, 224)",yoav,1.0000,83.48,normal,yoav,1.0000,33.80,0.00,-49.68
+yoav_normal_21.jpg,"(0, 0, 224, 224)",yoav,0.9989,21.92,normal,yoav,0.9989,37.59,0.00,15.67
+yoav_normal_22.jpg,"(0, 0, 224, 224)",yoav,0.9998,21.69,normal,yoav,0.9998,31.77,0.00,10.08
+yoav_normal_23.jpg,"(0, 0, 224, 224)",yoav,0.9440,31.64,normal,yoav,0.9440,36.81,0.00,5.17
+yoav_normal_24.jpg,"(0, 0, 224, 224)",yoav,0.9921,19.93,normal,yoav,0.9921,33.81,0.00,13.87
+yoav_normal_25.jpg,"(0, 0, 224, 224)",yoav,0.9917,27.75,normal,yoav,0.9917,39.89,0.00,12.13
+yoav_normal_26.jpg,"(0, 0, 224, 224)",yoav,0.9982,29.90,normal,yoav,0.9982,29.83,0.00,-0.07
+yoav_normal_27.jpg,"(0, 0, 224, 224)",yoav,1.0000,24.75,normal,yoav,1.0000,60.20,0.00,35.45
+yoav_normal_28.jpg,"(0, 0, 224, 224)",yoav,1.0000,36.38,normal,yoav,1.0000,57.60,0.00,21.22
+yoav_normal_29.jpg,"(0, 0, 224, 224)",yoav,1.0000,31.84,normal,yoav,1.0000,46.14,0.00,14.30
+yoav_normal_3.jpg,"(0, 0, 224, 224)",yoav,0.9999,16.04,normal,yoav,0.9999,15.64,0.00,-0.40
+yoav_normal_30.jpg,"(0, 0, 224, 224)",yoav,1.0000,7.96,normal,yoav,1.0000,13.81,0.00,5.85
+yoav_normal_31.jpg,"(0, 0, 224, 224)",yoav,0.9995,8.48,normal,yoav,0.9995,15.44,0.00,6.96
+yoav_normal_32.jpg,"(0, 0, 224, 224)",yoav,0.9922,5.64,normal,yoav,0.9922,21.33,0.00,15.69
+yoav_normal_33.jpg,"(0, 0, 224, 224)",yoav,1.0000,13.69,normal,yoav,1.0000,16.84,0.00,3.15
+yoav_normal_34.jpg,"(0, 0, 224, 224)",yoav,0.9999,8.03,low_light,yoav,0.9998,15.81,-0.02,7.78
+yoav_normal_35.jpg,"(0, 0, 224, 224)",yoav,0.9999,8.03,low_light,yoav,0.9998,17.82,-0.00,9.79
+yoav_normal_36.jpg,"(0, 0, 224, 224)",yoav,1.0000,6.02,normal,yoav,1.0000,13.80,0.00,7.77
+yoav_normal_37.jpg,"(0, 0, 224, 224)",yoav,1.0000,9.78,normal,yoav,1.0000,14.09,0.00,4.31
+yoav_normal_38.jpg,"(0, 0, 224, 224)",yoav,1.0000,8.04,normal,yoav,1.0000,15.84,0.00,7.80
+yoav_normal_39.jpg,"(0, 0, 224, 224)",yoav,0.9999,5.86,normal,yoav,0.9999,6.08,0.00,0.22
+yoav_normal_4.jpg,"(0, 0, 224, 224)",yoav,0.9997,9.79,normal,yoav,0.9997,10.04,0.00,0.25
+yoav_normal_40.jpg,"(0, 0, 224, 224)",yoav,0.9999,7.78,low_light,yoav,0.9996,19.83,-0.03,12.06
+yoav_normal_41.jpg,"(0, 0, 224, 224)",yoav,0.9999,10.20,normal,yoav,0.9999,17.59,0.00,7.39
+yoav_normal_5.jpg,"(0, 0, 224, 224)",yoav,0.9991,9.78,normal,yoav,0.9991,13.64,0.00,3.86
+yoav_normal_6.jpg,"(0, 0, 224, 224)",yoav,1.0000,18.74,normal,yoav,1.0000,28.82,0.00,10.08
+yoav_normal_7.jpg,"(0, 0, 224, 224)",yoav,0.9999,11.81,low_light,yoav,0.9999,17.84,-0.01,6.03
+yoav_normal_8.jpg,"(0, 0, 224, 224)",yoav,0.9719,8.04,low_light,yoav,0.9970,29.38,2.51,21.34
+yoav_normal_9.jpg,"(0, 0, 224, 224)",yoav,0.9999,16.24,low_light,yoav,0.9936,25.95,-0.63,9.71
+
+
+--- SUMMARY STATISTICS ---,
+Metric,Value
+Total Faces Processed,41
+Basic Pipeline Accuracy,100.00%
+Gated Pipeline Accuracy,100.00%
+Net Accuracy Change,+0.00%
+Average Time Basic (ms),21.21
+Average Time Gated (ms),32.35
+Time Cost of Gate (ms),11.13
+Flips: Bad to Good (Fixed),0
+Flips: Good to Bad (Ruined),0
+Avg Conf Change (Both Correct),+0.02%
+Avg Conf Change (Both Wrong),+0.00%

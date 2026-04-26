@@ -1,0 +1,25 @@
+Image,Face_Index,BASE_Name,BASE_Conf,BASE_Time(ms),Gate Decision,GATE_Name,GATE_Conf,GATE_Time(ms),Conf_Gain,Time_Cost(ms)
+real_lowrez_1773066481040.jpg,"(0, 0, 128, 128)",other,0.9659,0.00,motion_blur,Unknown,0.5470,19.68,-41.89,19.68
+real_lowrez_1773067701349.jpg,"(0, 0, 128, 128)",other,0.9808,12.05,motion_blur,other,0.8770,15.81,-10.38,3.76
+real_lowrez_1773067703441.jpg,"(0, 0, 128, 128)",other,0.9811,9.95,motion_blur,other,0.8265,5.77,-15.46,-4.17
+real_lowrez_1773067705941.jpg,"(0, 0, 128, 128)",other,0.9988,15.65,motion_blur,other,0.9779,22.15,-2.09,6.50
+real_lowrez_1773067709458.jpg,"(0, 1, 128, 128)",other,0.9911,0.00,motion_blur,other,0.9772,24.00,-1.39,24.00
+real_lowrez_1773067712561.jpg,"(0, 3, 128, 128)",other,0.9964,15.64,motion_blur,other,0.9882,16.07,-0.82,0.43
+real_lowrez_1773067718822.jpg,"(0, 0, 128, 128)",other,0.9957,0.00,motion_blur,other,0.9662,15.68,-2.95,15.68
+real_lowrez_1773067780079.jpg,"(0, 0, 128, 128)",other,0.9943,8.02,motion_blur,other,0.9668,9.77,-2.75,1.75
+real_lowrez_1773067781100.jpg,"(0, 0, 128, 128)",other,0.9962,1.75,motion_blur,other,0.9492,21.09,-4.70,19.34
+
+
+--- SUMMARY STATISTICS ---,
+Metric,Value
+Total Faces Processed,9
+Basic Pipeline Accuracy,100.00%
+Gated Pipeline Accuracy,88.89%
+Net Accuracy Change,-11.11%
+Average Time Basic (ms),7.01
+Average Time Gated (ms),16.67
+Time Cost of Gate (ms),9.66
+Flips: Bad to Good (Fixed),0
+Flips: Good to Bad (Ruined),1
+Avg Conf Change (Both Correct),-5.07%
+Avg Conf Change (Both Wrong),+0.00%

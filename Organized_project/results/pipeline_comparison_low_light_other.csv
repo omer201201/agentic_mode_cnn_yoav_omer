@@ -1,0 +1,42 @@
+Image,Face_Index,BASE_Name,BASE_Conf,BASE_Time(ms),Gate Decision,GATE_Name,GATE_Conf,GATE_Time(ms),Conf_Gain,Time_Cost(ms)
+real_blur_1773067576531.jpg,"(0, 13, 128, 128)",other,0.9892,397.12,low_light,omer,0.6025,127.58,-38.67,-269.54
+real_dark_1773066305338.jpg,"(0, 0, 128, 128)",other,0.9709,0.00,low_light,other,0.6516,0.00,-31.92,0.00
+real_dark_1773066305949.jpg,"(0, 0, 128, 128)",other,0.9740,6.01,low_light,yoav,0.7991,7.76,-17.49,1.75
+real_dark_1773066323821.jpg,"(0, 0, 128, 128)",other,0.9955,15.66,low_light,yoav,0.8934,8.03,-10.21,-7.63
+real_dark_1773066326261.jpg,"(0, 0, 128, 128)",other,0.9575,6.19,low_light,Unknown,0.5977,9.56,-35.98,3.37
+real_dark_1773066327078.jpg,"(0, 0, 128, 128)",other,0.9944,13.66,low_light,Unknown,0.4964,12.03,-49.80,-1.63
+real_dark_1773067417826.jpg,"(0, 0, 128, 128)",other,0.9991,7.86,low_light,other,0.7466,6.83,-25.25,-1.02
+real_dark_1773067419554.jpg,"(0, 0, 128, 128)",other,0.9997,15.63,low_light,other,0.7619,7.40,-23.78,-8.24
+real_dark_1773067423794.jpg,"(0, 0, 128, 128)",other,0.9965,15.63,low_light,other,0.9038,0.00,-9.27,-15.63
+real_dark_1773067434917.jpg,"(1, 0, 128, 128)",other,0.9986,0.00,low_light,Unknown,0.5052,15.69,-49.34,15.69
+real_norm_1773067355604.jpg,"(0, 0, 128, 128)",other,0.9978,5.76,low_light,other,0.8410,15.66,-15.68,9.90
+real_norm_1773067355874.jpg,"(0, 0, 128, 128)",other,0.9994,15.67,low_light,other,0.9694,14.04,-3.00,-1.63
+real_norm_1773067357313.jpg,"(0, 0, 128, 128)",other,0.9988,9.89,low_light,other,0.9779,7.76,-2.09,-2.12
+real_norm_1773067358784.jpg,"(0, 0, 128, 128)",other,0.9994,6.01,low_light,other,0.9961,9.77,-0.33,3.76
+real_norm_1773067359612.jpg,"(0, 0, 128, 128)",other,0.9994,5.61,low_light,other,0.9865,0.00,-1.29,-5.61
+real_norm_1773067359929.jpg,"(0, 0, 128, 128)",other,0.9993,0.00,low_light,other,0.9877,0.00,-1.16,0.00
+real_norm_1773067360761.jpg,"(0, 0, 128, 128)",other,0.9999,0.00,low_light,other,0.9979,10.47,-0.21,10.47
+real_norm_1773067361057.jpg,"(0, 0, 128, 128)",other,0.9998,6.36,low_light,other,0.9920,0.00,-0.79,-6.36
+real_norm_1773067361744.jpg,"(0, 0, 128, 127)",other,0.9980,10.97,low_light,other,0.9675,5.04,-3.05,-5.94
+real_norm_1773067361744.jpg,"(3, 0, 115, 107)",other,0.9953,0.00,motion_blur,other,0.9385,16.07,-5.68,16.07
+real_norm_1773067362762.jpg,"(0, 0, 128, 128)",other,0.9999,0.00,low_light,other,0.9724,15.79,-2.75,15.79
+real_norm_1773067363076.jpg,"(0, 0, 128, 128)",other,0.9999,10.04,low_light,other,0.8527,3.76,-14.73,-6.28
+real_norm_1773067363347.jpg,"(0, 0, 128, 128)",other,0.9996,0.00,low_light,other,0.8827,25.78,-11.69,25.78
+real_norm_1773067364008.jpg,"(0, 0, 128, 128)",other,1.0000,15.70,low_light,other,0.6962,11.78,-30.37,-3.93
+real_norm_1773067364330.jpg,"(0, 0, 128, 128)",other,1.0000,0.00,low_light,other,0.9199,15.66,-8.01,15.66
+real_norm_1773067364553.jpg,"(0, 0, 128, 128)",other,1.0000,15.72,low_light,other,0.9116,0.00,-8.83,-15.72
+
+
+--- SUMMARY STATISTICS ---,
+Metric,Value
+Total Faces Processed,26
+Basic Pipeline Accuracy,100.00%
+Gated Pipeline Accuracy,76.92%
+Net Accuracy Change,-23.08%
+Average Time Basic (ms),22.29
+Average Time Gated (ms),13.33
+Time Cost of Gate (ms),-8.96
+Flips: Bad to Good (Fixed),0
+Flips: Good to Bad (Ruined),6
+Avg Conf Change (Both Correct),-9.99%
+Avg Conf Change (Both Wrong),+0.00%

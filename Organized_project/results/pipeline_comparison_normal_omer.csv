@@ -1,0 +1,66 @@
+Image,Face_Index,BASE_Name,BASE_Conf,BASE_Time(ms),Gate Decision,GATE_Name,GATE_Conf,GATE_Time(ms),Conf_Gain,Time_Cost(ms)
+omer_normal_163.jpg,"(0, 0, 224, 224)",omer,0.9988,17.93,normal,omer,0.9988,61.04,0.00,43.10
+omer_normal_164.jpg,"(0, 0, 224, 224)",omer,0.9999,133.82,normal,omer,0.9999,180.62,0.00,46.81
+omer_normal_165.jpg,"(0, 0, 224, 224)",omer,0.9999,11.89,normal,omer,0.9999,47.16,0.00,35.27
+omer_normal_166.jpg,"(0, 0, 224, 224)",omer,0.9997,34.13,normal,omer,0.9997,47.43,0.00,13.30
+omer_normal_167.jpg,"(0, 0, 224, 224)",omer,0.9995,23.35,normal,omer,0.9995,36.22,0.00,12.87
+omer_normal_168.jpg,"(0, 0, 224, 224)",omer,1.0000,30.12,normal,omer,1.0000,21.71,0.00,-8.40
+omer_normal_169.jpg,"(0, 0, 224, 224)",omer,0.9994,5.79,normal,omer,0.9994,48.22,0.00,42.43
+omer_normal_170.jpg,"(0, 0, 224, 224)",omer,0.9997,31.64,normal,omer,0.9997,31.62,0.00,-0.02
+omer_normal_171.jpg,"(0, 0, 224, 224)",omer,0.9998,15.91,normal,omer,0.9998,23.91,0.00,8.00
+omer_normal_172.jpg,"(0, 0, 224, 224)",omer,0.9998,1.74,normal,omer,0.9998,47.24,0.00,45.50
+omer_normal_173.jpg,"(0, 0, 224, 224)",omer,1.0000,29.65,normal,omer,1.0000,33.51,0.00,3.86
+omer_normal_174.jpg,"(0, 0, 224, 224)",omer,1.0000,12.16,normal,omer,1.0000,45.19,0.00,33.03
+omer_normal_175.jpg,"(0, 0, 224, 224)",omer,1.0000,9.08,normal,omer,1.0000,61.69,0.00,52.61
+omer_normal_176.jpg,"(0, 0, 224, 224)",omer,1.0000,31.54,normal,omer,1.0000,41.88,0.00,10.34
+omer_normal_177.jpg,"(0, 0, 224, 224)",omer,1.0000,23.98,normal,omer,1.0000,48.45,0.00,24.46
+omer_normal_178.jpg,"(0, 0, 224, 224)",omer,1.0000,31.67,normal,omer,1.0000,31.50,0.00,-0.17
+omer_normal_179.jpg,"(0, 0, 224, 224)",omer,1.0000,21.83,normal,omer,1.0000,36.47,0.00,14.64
+omer_normal_180.jpg,"(0, 0, 224, 224)",omer,0.9999,22.42,normal,omer,0.9999,19.40,0.00,-3.03
+omer_normal_181.jpg,"(0, 0, 224, 224)",omer,1.0000,26.92,normal,omer,1.0000,38.99,0.00,12.08
+omer_normal_182.jpg,"(0, 0, 224, 224)",omer,1.0000,27.99,normal,omer,1.0000,45.99,0.00,18.01
+omer_normal_183.jpg,"(0, 0, 224, 224)",omer,1.0000,14.10,normal,omer,1.0000,47.58,0.00,33.48
+omer_normal_184.jpg,"(0, 0, 224, 224)",omer,0.9999,15.91,normal,omer,0.9999,31.51,0.00,15.60
+omer_normal_185.jpg,"(0, 1, 222, 224)",omer,0.9999,15.68,normal,omer,0.9999,0.00,0.00,-15.68
+omer_normal_186.jpg,"(0, 0, 224, 224)",omer,0.9994,43.75,normal,omer,0.9994,42.56,0.00,-1.19
+omer_normal_187.jpg,"(0, 0, 224, 224)",omer,1.0000,136.16,normal,omer,1.0000,195.85,0.00,59.69
+omer_normal_188.jpg,"(0, 0, 224, 224)",omer,0.9997,31.42,normal,omer,0.9997,47.45,0.00,16.03
+omer_normal_189.jpg,"(0, 0, 224, 224)",omer,1.0000,36.16,normal,omer,1.0000,43.43,0.00,7.27
+omer_normal_190.jpg,"(0, 0, 224, 224)",omer,0.9998,27.96,normal,omer,0.9998,47.79,0.00,19.83
+omer_normal_191.jpg,"(0, 0, 224, 224)",omer,1.0000,33.75,normal,omer,1.0000,45.83,0.00,12.08
+omer_normal_192.jpg,"(0, 0, 224, 224)",omer,1.0000,15.72,normal,omer,1.0000,47.37,0.00,31.65
+omer_normal_193.jpg,"(0, 0, 224, 224)",omer,1.0000,37.69,normal,omer,1.0000,43.84,0.00,6.15
+omer_normal_194.jpg,"(0, 0, 224, 224)",omer,1.0000,26.34,normal,omer,1.0000,49.60,0.00,23.26
+omer_normal_195.jpg,"(0, 0, 224, 224)",omer,1.0000,6.91,normal,omer,1.0000,9.19,0.00,2.29
+omer_normal_196.jpg,"(0, 0, 224, 224)",omer,0.9997,7.77,normal,omer,0.9997,10.79,0.00,3.01
+omer_normal_197.jpg,"(0, 0, 224, 224)",omer,0.9996,0.00,normal,omer,0.9996,28.14,0.00,28.14
+omer_normal_198.jpg,"(0, 0, 224, 224)",omer,0.9999,0.00,normal,omer,0.9999,15.65,0.00,15.65
+omer_normal_199.jpg,"(0, 0, 224, 224)",omer,0.9999,0.00,normal,omer,0.9999,17.64,0.00,17.64
+omer_normal_200.jpg,"(0, 0, 224, 224)",omer,1.0000,6.02,normal,omer,1.0000,1.75,0.00,-4.27
+omer_normal_201.jpg,"(0, 0, 224, 224)",omer,1.0000,0.00,normal,omer,1.0000,15.74,0.00,15.74
+omer_normal_202.jpg,"(0, 0, 224, 224)",omer,1.0000,12.56,normal,omer,1.0000,6.88,0.00,-5.68
+omer_normal_203.jpg,"(0, 0, 224, 224)",omer,1.0000,9.43,normal,omer,1.0000,21.47,0.00,12.03
+omer_normal_204.jpg,"(0, 0, 224, 224)",omer,0.9999,9.54,normal,omer,0.9999,7.80,0.00,-1.74
+omer_normal_205.jpg,"(0, 0, 224, 224)",omer,0.9994,7.11,low_light,omer,0.9998,15.70,0.04,8.59
+omer_normal_206.jpg,"(0, 0, 224, 224)",omer,0.9999,16.40,low_light,omer,0.9999,17.57,-0.00,1.17
+omer_normal_207.jpg,"(0, 0, 224, 224)",omer,0.9999,10.84,normal,omer,0.9999,15.84,0.00,5.01
+omer_normal_208.jpg,"(4, 0, 224, 224)",omer,0.9998,15.65,normal,omer,0.9998,15.22,0.00,-0.44
+omer_normal_209.jpg,"(0, 0, 224, 224)",omer,1.0000,15.65,normal,omer,1.0000,9.20,0.00,-6.45
+omer_normal_210.jpg,"(0, 0, 224, 224)",omer,0.9999,4.71,normal,omer,0.9999,18.00,0.00,13.28
+omer_normal_211.jpg,"(0, 0, 224, 224)",omer,1.0000,7.22,normal,omer,1.0000,17.83,0.00,10.61
+omer_normal_212.jpg,"(0, 0, 223, 224)",omer,0.9999,16.14,normal,omer,0.9999,9.08,0.00,-7.06
+
+
+--- SUMMARY STATISTICS ---,
+Metric,Value
+Total Faces Processed,50
+Basic Pipeline Accuracy,100.00%
+Gated Pipeline Accuracy,100.00%
+Net Accuracy Change,+0.00%
+Average Time Basic (ms),22.48
+Average Time Gated (ms),36.89
+Time Cost of Gate (ms),14.41
+Flips: Bad to Good (Fixed),0
+Flips: Good to Bad (Ruined),0
+Avg Conf Change (Both Correct),+0.00%
+Avg Conf Change (Both Wrong),+0.00%
