@@ -16,10 +16,10 @@ import time
 
 # ---  CONFIGURATION ---
 MODEL_PATHS = {
-    "yolo": "models/yolov8n-face.pt",
-    "resnet": "models/resnet18_3.pt",
-    "gate": "models/gate_model_best_3.pth",
-    "mapping": "models/class_mapping.json",
+    "yolo": r"C:\Users\yoavt\PycharmProjects\final_projact\models\yolov8n-face.pt",
+    "resnet": r"C:\Users\yoavt\PycharmProjects\final_projact\models\resnet18_11.pt",
+    "gate": r"C:\Users\yoavt\PycharmProjects\final_projact\models\gate_model_best_3.pth",
+    "mapping": r"C:\Users\yoavt\PycharmProjects\final_projact\models\class_mapping.json",
     "sr_pb": "models/ESPCN_x3.pb"
 }
 
@@ -67,7 +67,7 @@ class IntegratedGate:
             if not ret: break
 
             # STEP 1: Detect Faces (YOLO)
-            results = self.detector.detect(frame, expand_ratio=0.30)
+            results = self.detector.detect(frame, expand_ratio=0.40)
 
             for res in results:
                 face = res["crop"]
@@ -87,7 +87,7 @@ class IntegratedGate:
                     fixed_face = face  # "normal" class
 
                 # STEP 4: Identify Person (ResNet)
-                input_face = self.id_letterbox(fixed_face, target_size=128)
+                input_face = self.id_letterbox(fixed_face, target_size=224)
 
                 # CRITICAL: BGR to RGB swap
                 input_face_rgb = cv2.cvtColor(input_face, cv2.COLOR_BGR2RGB)
@@ -103,7 +103,7 @@ class IntegratedGate:
                     id_conf, pred = torch.max(prob, 1)
 
                 # Threshold Check for Unknowns
-                if id_conf.item() < 0.80:
+                if id_conf.item() < 0.60:
                     person_name = "Unknown"
                 else:
                     person_name = self.classes[pred.item()]
@@ -168,7 +168,7 @@ class IntegratedGate:
             t_start = time.time()
 
             # STEP 1: Detect Faces (YOLO)
-            results = self.detector.detect(frame, expand_ratio=0.30)
+            results = self.detector.detect(frame, expand_ratio=0.40)
 
             for res in results:
 
@@ -208,7 +208,7 @@ class IntegratedGate:
                     id_conf, pred = torch.max(prob, 1)
 
                 # Threshold Check
-                if id_conf.item() < 0.40:
+                if id_conf.item() < 0.60:
                     person_name = "Unknown"
                 else:
                     person_name = self.classes[pred.item()]
@@ -252,8 +252,8 @@ class IntegratedGate:
 if __name__ == "__main__":
     system = IntegratedGate()
     # OPTION 1: Run on images (Choose this while camera is broken)
-    test_folder = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\data\omer\normal"
-    system.run_on_folder(test_folder)
+    #test_folder = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\data\omer\normal"
+    #system.run_on_folder(test_folder)
 
     # OPTION 2: Standard Video Stream (Use this later on Jetson Orin Nano)
-    # system.run()
+    system.run()

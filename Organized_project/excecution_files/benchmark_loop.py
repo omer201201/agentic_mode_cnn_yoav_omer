@@ -18,15 +18,14 @@ from restoration_agents.low_res_agent import SuperResAgent
 from generate_data.generate_data_for_gate import smart_resize
 
 # --- CONFIGURATION ---
-BASE_DIR = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\data\yoav"
-
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = r"C:\Users\yoavt\PycharmProjects\final_projact\data\system_test\other"
 MODEL_PATHS = {
-    "yolo": "models/yolov8n-face.pt",
-    "resnet": "models/resnet18_3.pt",
-    "gate": "models/gate_model_best_2.pth",
-    "mapping": "models/class_mapping.json"
+    "yolo": os.path.join(PROJECT_ROOT, "models", "yolov8n-face.pt"),
+    "resnet": os.path.join(PROJECT_ROOT, "models", "resnet18_11.pt"),
+    "gate": os.path.join(PROJECT_ROOT, "models", "gate_model_best_7.pth"),
+    "mapping": os.path.join(PROJECT_ROOT, "models", "class_mapping.json")
 }
-
 
 class PipelineBenchmark:
     def __init__(self):
@@ -82,7 +81,7 @@ class PipelineBenchmark:
             conf, pred = torch.max(prob, 1)
 
         # Unknown Threshold
-        if conf.item() < 0.40:
+        if conf.item() < 0.60:
             return "Unknown", conf.item()
         return self.classes[pred.item()], conf.item()
 
@@ -99,13 +98,13 @@ class PipelineBenchmark:
 
         # --- Data Tracking Variables ---
         gate_decisions = {"low_light": 0, "low_res": 0, "motion_blur": 0, "normal": 0}
-        
+
         flips_good_to_bad = 0
         flips_bad_to_good = 0
-        
+
         conf_changes_both_wrong = []
         conf_changes_both_right = []
-        
+
         total_base_time = 0
         total_gate_time = 0
         total_faces_processed = 0
@@ -129,7 +128,7 @@ class PipelineBenchmark:
                 elif "omer" in filename.lower():
                     ground_truth = "omer"
 
-                results = self.detector.detect(frame, expand_ratio=0.30)
+                results = self.detector.detect(frame, expand_ratio=0.40)
 
                 for res in results:
                     face = res["crop"]
@@ -203,14 +202,14 @@ class PipelineBenchmark:
             avg_gate_time = total_gate_time / total_faces_processed
             avg_right = (sum(conf_changes_both_right) / len(conf_changes_both_right) * 100) if conf_changes_both_right else 0
             avg_wrong = (sum(conf_changes_both_wrong) / len(conf_changes_both_wrong) * 100) if conf_changes_both_wrong else 0
-            
+
             base_accuracy = (base_correct_count / total_faces_processed) * 100
             gate_accuracy = (gate_correct_count / total_faces_processed) * 100
 
             print("\n" + "="*40)
             print(f"     ANALYTICS: {condition_name.upper()}")
             print("="*40)
-            
+
             print(f"1. Overall Success Rate (Accuracy):")
             print(f"   - Basic Pipeline: {base_accuracy:.1f}% ({base_correct_count}/{total_faces_processed})")
             print(f"   - Gated Pipeline: {gate_accuracy:.1f}% ({gate_correct_count}/{total_faces_processed})")
@@ -236,11 +235,11 @@ class PipelineBenchmark:
             # Append Summary Table to the CSV
             with open(output_csv, mode='a', newline='') as f:
                 writer = csv.writer(f)
-                
+
                 # Create a visual break
                 writer.writerow([])
                 writer.writerow([])
-                
+
                 # Write the table headers and data
                 writer.writerow(["--- SUMMARY STATISTICS ---", ""])
                 writer.writerow(["Metric", "Value"])
@@ -259,43 +258,43 @@ class PipelineBenchmark:
         # --- Create and Save the Pie Chart (No Popup) ---
         labels = [k for k, v in gate_decisions.items() if v > 0]
         sizes = [v for k, v in gate_decisions.items() if v > 0]
-        
+
         if sizes:
             plt.figure(figsize=(8, 6))
             plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
             plt.title(f'Gate Decisions Breakdown ({condition_name})')
-            plt.axis('equal') 
-            pie_filename = f'gate_decisions_pie_{condition_name}_yoav.png'
-            plt.savefig(pie_filename) 
+            plt.axis('equal')
+            pie_filename = f'gate_decisions_pie_{condition_name}_other.png'
+            plt.savefig(pie_filename)
             print(f"\nPie chart saved automatically as '{pie_filename}'.")
             plt.close() # Critical: This stops the loop from freezing!
 
 
 if __name__ == "__main__":
     benchmark = PipelineBenchmark()
-    
+
     # List the exact folder names shown in your image
     folders_to_test = ["low_light", "low_res", "motion_blur", "normal"]
-    
+
     for folder_name in folders_to_test:
         print("\n" + "="*60)
         print(f" STARTING BENCHMARK FOR: {folder_name.upper()}")
         print("="*60)
-        
+
         # 1. Build the full path to the specific folder
         folder_path = os.path.join(BASE_DIR, folder_name)
-        
+
         # 2. Check if the folder exists to prevent crashes
         if not os.path.exists(folder_path):
             print(f"[Warning] Folder not found: {folder_path}. Skipping...")
             continue
-            
+
         # 3. Create a unique CSV name for this specific test
-        csv_name = f"pipeline_comparison_{folder_name}_yoav.csv"
-        
+        csv_name = f"pipeline_comparison_{folder_name}_other.csv"
+
         # 4. Run the simulation
         benchmark.run_benchmark(test_folder=folder_path, output_csv=csv_name, condition_name=folder_name)
-        
+
     print("\n===========================================")
     print(" ALL FOLDER BENCHMARKS COMPLETED!")
     print(" Check your directory for the CSVs and Pie Charts.")

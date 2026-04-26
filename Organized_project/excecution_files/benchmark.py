@@ -7,7 +7,7 @@ import numpy as np
 import json
 import time
 import csv
-import matplotlib.pyplot as plt  # --- NEW: For the pie chart ---
+import matplotlib.pyplot as plt
 from model_objects.YOLOv8 import FaceDetector
 from model_objects.ResNet import build_model
 from model_objects.gate import AdaptiveGate
@@ -17,15 +17,14 @@ from restoration_agents.low_res_agent import SuperResAgent
 from generate_data.generate_data_for_gate import smart_resize
 
 # --- CONFIGURATION ---
-TEST_FOLDER = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\data\omer\low_res"
-OUTPUT_CSV = "pipeline_comparison_low_res_omer_2.csv"
-
+TEST_FOLDER = r"C:\Users\yoavt\PycharmProjects\final_projact\data\system_test\yoav\low_light"
+OUTPUT_CSV = "pipeline_comparison_low_light_yoav.csv"
 
 MODEL_PATHS = {
-    "yolo": "models/yolov8n-face.pt",
-    "resnet": "models/resnet18_3.pt",
-    "gate": "models/gate_model_best_2.pth",
-    "mapping": "models/class_mapping.json"
+    "yolo": r"C:\Users\yoavt\PycharmProjects\final_projact\models\yolov8n-face.pt",
+    "resnet": r"C:\Users\yoavt\PycharmProjects\final_projact\models\resnet18_8.pt",
+    "gate": r"C:\Users\yoavt\PycharmProjects\final_projact\models\gate_model_best_3.pth",
+    "mapping": r"C:\Users\yoavt\PycharmProjects\final_projact\models\class_mapping.json"
 }
 
 
@@ -250,7 +249,7 @@ class PipelineBenchmark:
             plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
             plt.title('Gate Decisions Breakdown')
             plt.axis('equal') 
-            plt.savefig('gate_decisions_pie_low_res_omer_2.png')
+            plt.savefig('gate_decisions_pie_low_light_yoav.png')
             print("\nPie chart saved as 'gate_decisions_pie.png'. Closing the popup window will end the script.")
             plt.show() 
 

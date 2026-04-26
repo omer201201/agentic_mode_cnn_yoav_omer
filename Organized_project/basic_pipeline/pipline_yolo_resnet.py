@@ -1,6 +1,4 @@
-import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import cv2
 import torch
 import numpy as np
@@ -9,11 +7,11 @@ from model_objects.YOLOv8 import FaceDetector
 from model_objects.ResNet import build_model
 
 import time
-# ---  CONFIGURATION ---
+# ---  CONFIGURATION ---/
 MODEL_PATHS = {
-    "yolo": "models/yolov8n-face.pt",
-    "resnet": "models/resnet18_3.pt",
-    "mapping": "models/class_mapping.json"
+    "yolo": r"C:\Users\yoavt\PycharmProjects\final_projact\models\yolov8n-face.pt",
+    "resnet": r"C:\Users\yoavt\PycharmProjects\final_projact\models\resnet18_3.pt",
+    "mapping": r"C:\Users\yoavt\PycharmProjects\final_projact\models\class_mapping.json"
 }
 
 
@@ -199,8 +197,8 @@ if __name__ == "__main__":
     system = BaselinePipeline()
 
     # --- OPTION 1: Run on Folder ---
-    test_folder_path = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\data\yoav\normal"
-    system.run_on_folder(test_folder_path)
+    #test_folder_path = r"C:\Users\Your0124\pycharm_project_test\data\resnet_dataset\testpipline"
+    #system.run_on_folder(test_folder_path)
 
     # --- OPTION 2: Run on Camera ---
-    # system.run_on_camera()
+    system.run_on_camera()
