@@ -7,7 +7,7 @@ from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
-from gate import SimpleGateCNN
+from model_objects.gate import SimpleGateCNN
 
 # ----------------------------------------
 # 1. Data Loading (Simpler now!)
@@ -18,14 +18,9 @@ def get_gate_dataloaders(data_dir: str, batch_size: int = 32, num_workers: int =
     """
     # --- TRAINING TRANSFORMS ---
     train_tfms = transforms.Compose([
-        # 1. Resize to Model Input Size
-        transforms.Resize((128, 128)),
-
-        # 2. Data Augmentation
-        transforms.RandomHorizontalFlip(p=0.5),  # Flip left/right
-        transforms.RandomRotation(10),  # Rotate slightly
-
-        # 4. Convert to Tensor
+        transforms.Resize((224, 224)),
+        # Keep the flip! It doubles your dataset without altering light or blur profiles.
+        transforms.RandomHorizontalFlip(p=0.5),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
     ])
@@ -33,7 +28,7 @@ def get_gate_dataloaders(data_dir: str, batch_size: int = 32, num_workers: int =
     # --- VALIDATION TRANSFORMS ---
     # No random changes, just resize and normalize
     val_tfms = transforms.Compose([
-        transforms.Resize((128, 128)),
+        transforms.Resize((224, 224)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
     ])
@@ -115,7 +110,7 @@ def evaluate(model, loader, device, criterion):
 # ----------------------------------------
 def train_gate_manager(model, train_loader, valid_loader, device, class_weights, epochs=10):
     criterion = nn.CrossEntropyLoss(weight=class_weights)
-    optimizer = optim.Adam(model.parameters(), lr=0.001)  # Standard learning rate
+    optimizer = optim.Adam(model.parameters(), lr=0.0001)  # Standard learning rate
 
     # Decays LR if validation accuracy stops improving
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=2)
@@ -183,8 +178,8 @@ def plot_confusion_matrix(model, loader, device, classes):
 # ----------------------------------------
 def main():
     # --- CONFIG ---
-    data_dir = "data/gate_dataset"
-    output_dir = "models"
+    data_dir = r"C:\Users\yoavt\PycharmProjects\final_projact\data\gate_dataset_test"
+    output_dir = r"C:\Users\yoavt\PycharmProjects\final_projact\models"
 
     # Check device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -214,14 +209,14 @@ def main():
         valid_loader,
         device,
         class_weights=weights,  # Pass weights here
-        epochs=20  # Increased slightly since GAP needs a bit more time to converge
+        epochs=15  # Increased slightly since GAP needs a bit more time to converge
     )
 
     # 4. Save Results
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    model_path = os.path.join(output_dir, "gate_model_best_4.pth")
+    model_path = os.path.join(output_dir, "gate_model_best_7.pth")
     torch.save(model.state_dict(), model_path)
     print(f"\n Saved best model to: {model_path}")
 
