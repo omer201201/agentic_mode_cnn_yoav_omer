@@ -2,7 +2,6 @@ import os
 import json
 from pathlib import Path
 from collections import Counter
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -24,7 +23,7 @@ def get_dataloaders(data_dir: str, batch_size: int = 32, num_workers: int = 2):
     # Mild augmentations (better for face-ID style classification)
     train_tfms = transforms.Compose([
         #ResNet expects 224x224 inputs
-        transforms.RandomResizedCrop(224, scale=(0.5, 1.0)),
+        transforms.Resize((224, 224)),
         transforms.RandomHorizontalFlip(p=0.5),
         transforms.ColorJitter(brightness=0.20, contrast=0.10, saturation=0.05, hue=0.02),
         transforms.ToTensor(),
@@ -92,7 +91,7 @@ def get_dataloaders(data_dir: str, batch_size: int = 32, num_workers: int = 2):
 def build_model(num_classes: int):
     # Use official pretrained weights
     model = models.resnet18(weights=None)
-    state_dict = torch.load("models/resnet18-f37072fd.pth", map_location="cpu")
+    state_dict = torch.load(r"C:\Users\yoavt\PycharmProjects\final_projact\models\resnet18-f37072fd.pth", map_location="cpu")
     model.load_state_dict(state_dict)
 
     # Replace classifier
@@ -261,8 +260,8 @@ def train_model(model, train_loader,valid_loader,device,phase1_epochs: int = 5,p
 # Main
 # ------------------------------------
 def main():
-    data_dir = "data/resnet_dataset"
-    output_dir = "models"
+    data_dir = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset"
+    output_dir = r"C:\Users\yoavt\PycharmProjects\final_projact\models"
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -279,12 +278,12 @@ def main():
         train_loader,
         valid_loader,
         device,
-        phase1_epochs=10,
-        phase2_epochs=5,  # Lower learning rate here!
+        phase1_epochs=12,
+        phase2_epochs=6,  # Lower learning rate here!
     )
 
     # Save weights + mapping
-    model_path = os.path.join(output_dir, "id_classifier_resnet18_test.pt")
+    model_path = os.path.join(output_dir, "resnet18_11.pt")
     torch.save(model.state_dict(), model_path)
     print("Saved model weights to:", model_path)
 

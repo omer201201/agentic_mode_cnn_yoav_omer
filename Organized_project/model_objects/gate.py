@@ -6,17 +6,17 @@ import torchvision.transforms as transforms
 import numpy as np
 
 # ==========================================
-# 1. The Neural Network
+# 1. The Neural Network (Upgraded for 224x224)
 # ==========================================
 class SimpleGateCNN(nn.Module):
     """
-    Lightweight CNN upgraded with Global Average Pooling.
-    Highly optimized for edge inference.
+    Upgraded Lightweight CNN for 224x224 input.
+    Added a 4th block to properly process the larger spatial dimensions.
     """
-    def __init__(self, dropout_prob=0.1):
+    def __init__(self, dropout_prob=0.2): # Slightly higher dropout for deeper network
         super(SimpleGateCNN, self).__init__()
 
-        # --- Block 1 (Bigger Kernel for global patterns like blur) ---
+        # --- Block 1 ---
         self.conv1 = nn.Conv2d(3, 32, kernel_size=5, padding=2)
         self.bn1   = nn.BatchNorm2d(32)
 
@@ -28,42 +28,51 @@ class SimpleGateCNN(nn.Module):
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
         self.bn3   = nn.BatchNorm2d(128)
 
+        # --- Block 4 (NEW: Needed for 224x224 input) ---
+        self.conv4 = nn.Conv2d(128, 256, kernel_size=3, padding=1)
+        self.bn4   = nn.BatchNorm2d(256)
+
         self.pool = nn.MaxPool2d(2, 2)
 
-        # --- Global Average Pooling (The Game Changer) ---
-        # This replaces Flattening. It forces the model to look at the "what" instead of the "where".
+        # --- Global Average Pooling ---
         self.gap = nn.AdaptiveAvgPool2d((1, 1))
 
         # --- Classification Head ---
-        # Notice how much smaller this is now! (128 inputs instead of 32,768)
-        self.fc1 = nn.Linear(128, 64)
+        # The input is now 256 from the 4th block
+        self.fc1 = nn.Linear(256, 64)
         self.dropout = nn.Dropout(p=dropout_prob)
         self.fc2 = nn.Linear(64, 4)
 
     def forward(self, x):
-        # Block 1: Conv -> BN -> ReLU -> Pool
-        x = self.conv1(x)  # Extract features
-        x = self.bn1(x)  # Normalize for stability
-        x = F.relu(x)  # Apply non-linearity
-        x = self.pool(x)  # Downsample
+        # Block 1
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = F.relu(x)
+        x = self.pool(x) # 224 -> 112
 
-        # Block 2: Conv -> BN -> ReLU -> Pool
+        # Block 2
         x = self.conv2(x)
         x = self.bn2(x)
         x = F.relu(x)
-        x = self.pool(x)
+        x = self.pool(x) # 112 -> 56
 
-        # Block 3: Conv -> BN -> ReLU -> Pool
+        # Block 3
         x = self.conv3(x)
         x = self.bn3(x)
         x = F.relu(x)
-        x = self.pool(x)
+        x = self.pool(x) # 56 -> 28
 
-        # --- Global Average Pooling -> Flatten ---
+        # Block 4 (New)
+        x = self.conv4(x)
+        x = self.bn4(x)
+        x = F.relu(x)
+        x = self.pool(x) # 28 -> 14
+
+        # GAP -> Flatten
         x = self.gap(x)
         x = x.view(x.size(0), -1)
 
-        # --- Classifier ---
+        # Classifier
         x = self.fc1(x)
         x = F.relu(x)
         x = self.dropout(x)
@@ -143,8 +152,7 @@ class AdaptiveGate:
             return 100 , "motion_blur"
         '''
         # STEP 1: Apply Smart Resizing
-        # We resize to 128x128 because that's what the model expects
-        processed_face = self.smart_resize(face_crop, target_size=128)
+        processed_face = self.smart_resize(face_crop, target_size=224)
         #  STEP 2: Convert to PyTorch format
         img_rgb = cv2.cvtColor(processed_face, cv2.COLOR_BGR2RGB)
         input_tensor = self.transform(img_rgb).unsqueeze(0).to(self.device)
