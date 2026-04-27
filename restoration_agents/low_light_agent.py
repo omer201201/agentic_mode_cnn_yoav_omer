@@ -1,0 +1,146 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import cv2
+import numpy as np
+from tqdm import tqdm
+
+# ----------------------------------------
+# 1. Dynamic Low Light Agent Definition
+# PURPOSE: This agent rescues dark images by intelligently boosting brightness
+# and contrast. Instead of applying a flat fix to every image, it calculates
+# the exact amount of enhancement needed based on the image's overall luminance.
+# ----------------------------------------
+class DynamicLowLightAgent:
+    def __init__(self):
+        pass
+
+    def _get_dynamic_params(self, l_channel):
+        # Calculates how aggressively to fix the image.
+        avg_brightness = np.mean(l_channel)
+        print("avg_brightness:", avg_brightness)
+
+        # X-axis: The brightness thresholds
+        brightness_levels = [0, 20, 30, 40, 80, 100, 255]
+
+        # Y-axis: The parameters at those exact brightness levels
+        clip_limits = [4.0, 4.0, 3.0, 3.0, 2.0, 1.0, 0.0]
+        gammas = [2.2, 2.0, 1.8, 1.5, 1.0, 1.0, 1.0]
+        denoises = [15, 15, 12, 10, 5, 0, 0]
+
+        # --- np.interp (Linear Interpolation) ---
+        # This function acts like a sliding scale. If the avg_brightness is 35 (halfway
+        # between 30 and 40), it will calculate the exact halfway point between the
+        # corresponding parameters.
+        clip_limit = np.interp(avg_brightness, brightness_levels, clip_limits)
+        gamma = np.interp(avg_brightness, brightness_levels, gammas)
+
+        # Denoise needs to be an integer for the filter
+        denoise = int(np.interp(avg_brightness, brightness_levels, denoises))
+
+        return clip_limit, gamma, denoise
+
+    def process(self, image):
+
+        if image is None: return None
+        # LAB - format that allows the agent to isolate the L (Lightness) channel
+        lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+        l, a, b = cv2.split(lab)
+
+        clip, gamma, denoise = self._get_dynamic_params(l)
+
+        # Return the original BGR image without any math
+        if clip == 0 and gamma == 1.0 and denoise == 0:
+            return image
+
+        # 1. Apply CLAHE to the L channel
+        clahe = cv2.createCLAHE(clipLimit=clip, tileGridSize=(8, 8))
+        enhanced_l = clahe.apply(l)
+
+        # 2. Apply Gamma Correction to the L channel BEFORE converting to BGR
+        if gamma != 1.0:
+            inv_gamma = 1.0 / gamma
+
+            # Building the Look Up Table
+            table = np.array([((i / 255.0) ** inv_gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
+            enhanced_l = cv2.LUT(enhanced_l, table)
+
+        # 3. Proportionally boost Saturation
+        # If we brighten the image, we must slightly scale the A and B channels towards the edges
+        if clip > 1.0 or gamma < 1.0:
+            # Shift A and B channels to center 0, scale, then shift back to 128
+            a = cv2.addWeighted(a, 1.15, np.zeros_like(a), 0, -128 * 0.15)
+            b = cv2.addWeighted(b, 1.15, np.zeros_like(b), 0, -128 * 0.15)
+
+        # 4. Merge back to BGR
+        merged = cv2.merge((enhanced_l, a, b))
+        final_bgr = cv2.cvtColor(merged, cv2.COLOR_LAB2BGR)
+
+        # 5. Fast, Edge-Preserving Denoising Bilateral Filter
+        if denoise > 0:
+            final_bgr = cv2.bilateralFilter(final_bgr, d=5, sigmaColor=25, sigmaSpace=25)
+
+        return final_bgr
+
+    # ----------------------------------------
+    # 2. Batch Processing Tool
+    # PURPOSE: A utility to run the agent over thousands of images automatically.
+    # ----------------------------------------
+    def process_directory(self, input_dir, output_dir):
+        # Check if the input directory exists
+        if not os.path.exists(input_dir):
+            print(f"Error: Input directory '{input_dir}' does not exist.")
+            return
+
+        # Create the output directory if it doesn't exist
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        # Find all valid image files in the directory
+        valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.JPG', '.JPEG', '.PNG')
+        image_files = [f for f in os.listdir(input_dir) if f.endswith(valid_extensions)]
+
+        if not image_files:
+            print(f"No images found in {input_dir}.")
+            return
+
+        print(f"Found {len(image_files)} images. Starting batch enhancement...")
+
+        # Iterate over each image with a visual progress bar (tqdm)
+        for filename in tqdm(image_files, desc="Processing Images"):
+            img_path = os.path.join(input_dir, filename)
+
+            # Read the image
+            img = cv2.imread(img_path)
+            if img is None:
+                continue
+
+            try:
+                # Apply the enhancement process to the image
+                enhanced_img = self.process(img)
+
+                # Save the enhanced image to the output directory
+                save_path = os.path.join(output_dir, filename)
+                cv2.imwrite(save_path, enhanced_img)
+            except Exception as e:
+                print(f"\nError processing {filename}: {e}")
+
+        print(f"\nFinished processing! All images saved to: {output_dir}")
+
+
+def main():
+    print("Testing Low Light Agent")
+
+    # 1. Initialize the Agent
+    agent = DynamicLowLightAgent()
+
+    print("Running batch process...")
+    input_folder = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset\real_images_omer\low_light"
+    output_folder = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset\omer_after_agent"
+
+    agent.process_directory(input_folder, output_folder)
+
+
+if __name__ == "__main__":
+    main()

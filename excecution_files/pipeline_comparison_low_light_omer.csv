@@ -1,0 +1,56 @@
+Image,Face_Index,BASE_Name,BASE_Conf,BASE_Time(ms),Gate Decision,GATE_Name,GATE_Conf,GATE_Time(ms),Conf_Gain,Time_Cost(ms)
+omer_low_light_291.jpg,"(0, 2, 224, 224)",other,0.9077,43.32,low_light,other,0.4875,215.16,-42.02,171.84
+omer_low_light_293.jpg,"(0, 11, 224, 224)",omer,0.9543,38.08,low_light,omer,0.9280,69.52,-2.63,31.44
+omer_low_light_295.jpg,"(0, 9, 223, 224)",omer,0.8235,49.50,low_light,omer,0.9425,67.60,11.90,18.10
+omer_low_light_296.jpg,"(0, 8, 224, 224)",omer,0.5417,34.82,low_light,omer,0.8093,67.19,26.76,32.37
+omer_low_light_297.jpg,"(0, 8, 224, 224)",omer,0.9813,35.74,low_light,omer,0.9864,61.14,0.50,25.40
+omer_low_light_298.jpg,"(3, 10, 221, 224)",omer,0.9575,36.65,low_light,omer,0.9245,60.36,-3.30,23.71
+omer_low_light_301.jpg,"(0, 5, 219, 224)",omer,0.7855,37.05,low_light,omer,0.9200,38.90,13.45,1.85
+omer_low_light_302.jpg,"(0, 4, 217, 224)",other,0.6813,36.22,low_light,omer,0.6606,42.18,-2.07,5.96
+omer_low_light_303.jpg,"(0, 0, 224, 224)",other,0.5393,36.37,low_light,yoav,0.6401,38.45,10.08,2.08
+omer_low_light_304.jpg,"(0, 0, 224, 224)",other,0.6562,38.31,low_light,yoav,0.6889,40.22,3.26,1.91
+omer_low_light_305.jpg,"(0, 0, 224, 224)",omer,0.7494,36.00,low_light,omer,0.7577,42.53,0.83,6.53
+omer_low_light_306.jpg,"(3, 6, 223, 224)",omer,0.7753,35.94,low_light,omer,0.5761,64.61,-19.92,28.67
+omer_low_light_307.jpg,"(3, 6, 221, 224)",omer,0.9386,36.00,low_light,omer,0.9875,61.86,4.89,25.86
+omer_low_light_308.jpg,"(2, 5, 222, 224)",omer,0.8939,35.97,low_light,omer,0.9948,62.12,10.09,26.14
+omer_low_light_309.jpg,"(1, 3, 223, 224)",omer,0.7085,38.04,low_light,omer,0.6729,76.18,-3.55,38.14
+omer_low_light_310.jpg,"(2, 5, 224, 224)",omer,0.9511,38.98,low_light,omer,0.9832,63.30,3.21,24.32
+omer_low_light_311.jpg,"(3, 5, 223, 224)",omer,0.9307,38.22,low_light,omer,0.9853,62.98,5.46,24.76
+omer_low_light_312.jpg,"(1, 2, 224, 224)",omer,0.8772,36.00,low_light,omer,0.9958,83.32,11.86,47.32
+omer_low_light_313.jpg,"(0, 0, 224, 224)",omer,0.5260,38.10,low_light,omer,0.9650,39.07,43.90,0.98
+omer_low_light_314.jpg,"(0, 0, 224, 224)",omer,0.6066,39.46,low_light,omer,0.9874,40.08,38.08,0.62
+omer_low_light_315.jpg,"(0, 0, 224, 224)",omer,0.7796,40.02,low_light,omer,0.9788,52.51,19.92,12.49
+omer_low_light_316.jpg,"(6, 4, 224, 224)",omer,0.6408,38.11,low_light,omer,0.6052,66.10,-3.56,27.99
+omer_low_light_317.jpg,"(0, 1, 224, 224)",other,0.8194,37.37,low_light,omer,0.6665,68.75,-15.29,31.38
+omer_low_light_318.jpg,"(4, 5, 224, 224)",omer,0.9452,43.79,low_light,omer,0.9925,100.75,4.74,56.96
+omer_low_light_319.jpg,"(3, 5, 223, 224)",omer,0.8270,43.77,low_light,omer,0.6718,71.05,-15.52,27.29
+omer_low_light_320.jpg,"(4, 5, 222, 223)",omer,0.9598,38.51,low_light,omer,0.5987,80.01,-36.11,41.50
+omer_low_light_321.jpg,"(3, 4, 223, 224)",omer,0.7364,41.12,low_light,omer,0.5814,74.40,-15.50,33.28
+omer_low_light_322.jpg,"(0, 2, 224, 224)",omer,0.8398,39.24,low_light,omer,0.6440,75.19,-19.58,35.95
+omer_low_light_323.jpg,"(1, 3, 224, 224)",omer,0.9326,36.83,low_light,omer,0.9346,76.73,0.20,39.90
+omer_low_light_324.jpg,"(3, 3, 224, 224)",omer,0.9372,36.00,low_light,omer,0.8898,70.51,-4.73,34.52
+omer_low_light_325.jpg,"(0, 0, 224, 224)",other,0.7783,35.91,low_light,omer,0.6334,76.74,-14.49,40.82
+omer_low_light_326.jpg,"(0, 3, 224, 224)",omer,0.9587,35.74,low_light,omer,0.8344,61.17,-12.43,25.43
+omer_low_light_327.jpg,"(2, 4, 224, 224)",omer,0.9549,36.40,low_light,omer,0.8608,60.67,-9.42,24.27
+omer_low_light_328.jpg,"(2, 5, 222, 224)",omer,0.9242,37.55,low_light,omer,0.9795,85.63,5.53,48.08
+omer_low_light_329.jpg,"(4, 5, 222, 223)",omer,0.8442,39.53,low_light,omer,0.9664,62.66,12.22,23.13
+omer_low_light_330.jpg,"(1, 3, 224, 224)",omer,0.8060,37.98,low_light,omer,0.9270,61.21,12.11,23.24
+omer_low_light_331.jpg,"(0, 4, 224, 224)",other,0.9612,36.43,low_light,other,0.6513,74.27,-30.99,37.84
+omer_low_light_332.jpg,"(0, 2, 224, 224)",other,0.8968,37.00,low_light,other,0.8686,61.52,-2.83,24.52
+omer_low_light_333.jpg,"(0, 1, 224, 224)",other,0.7900,36.00,low_light,other,0.4409,63.51,-34.91,27.51
+omer_low_light_334.jpg,"(0, 4, 224, 224)",other,0.7882,38.00,low_light,other,0.6145,75.54,-17.37,37.55
+
+
+--- SUMMARY STATISTICS ---,
+Metric,Value
+Total Faces Processed,40
+Basic Pipeline Accuracy,75.00%
+Gated Pipeline Accuracy,82.50%
+Net Accuracy Change,+7.50%
+Average Time Basic (ms),38.10
+Average Time Gated (ms),67.89
+Time Cost of Gate (ms),29.79
+Flips: Bad to Good (Fixed),3
+Flips: Good to Bad (Ruined),0
+Avg Conf Change (Both Correct),+2.65%
+Avg Conf Change (Both Wrong),-16.40%

@@ -1,0 +1,3 @@
+Image,Face_Index,BASE_Name,BASE_Conf,BASE_Time(ms),Gate Decision,GATE_Name,GATE_Conf,GATE_Time(ms),Conf_Gain,Time_Cost(ms)
+yoav_low_light_50.jpg,"(0, 0, 224, 224)",other,0.7365,43.81,low_light,yoav,0.9987,175.44,26.23,131.63
+yoav_low_light_51.jpg,"(0, 0, 224, 224)",other,0.9149,50.01,low_light,yoav,0.8025,95.61,-11.24,45.59
