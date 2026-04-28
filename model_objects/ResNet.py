@@ -16,7 +16,8 @@ from torchvision.models import ResNet18_Weights
 # --- CONFIGURATION ---
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 MODEL_PATH = {
-    "Resnet": os.path.join(PROJECT_ROOT, "models", "resnet18_12.pt")
+    "Resnet": os.path.join(PROJECT_ROOT, "models", "resnet18_12.pt"),
+    "ResNet18_Weights": os.path.join(PROJECT_ROOT, "models", "resnet18-f37072fd.pth")
 }
 def get_dataloaders(data_dir: str, batch_size: int = 32, num_workers: int = 2):
 
@@ -94,7 +95,7 @@ def build_model(num_classes: int):
     model = models.resnet18(weights=None)
 
     # 2. Inject local pre-trained weights (Great for offline Jetson development!)
-    state_dict = torch.load(model_path = MODEL_PATH["Resnet"], map_location="cpu")
+    state_dict = torch.load(MODEL_PATH["ResNet18_Weights"], map_location="cpu")
     model.load_state_dict(state_dict)
 
     # 3. Replace the "Head"
@@ -184,7 +185,7 @@ def evaluate(model, loader, device, criterion):
         labels = labels.to(device, non_blocking=True)
 
         outputs = model(images)
-        loss = criterion(outputs, labels) # how wrong the model is compared  to the output
+        loss = criterion(outputs, labels)  # how wrong the model is compared  to the output
 
         total_loss += loss.item() * images.size(0)
         preds = outputs.argmax(dim=1)
@@ -196,7 +197,7 @@ def evaluate(model, loader, device, criterion):
 # -------------------------------------
 # 4. The Training Manager (Two-Phase System)
 # -------------------------------------
-def train_model(model, train_loader,valid_loader,device,phase1_epochs: int = 5,phase2_epochs: int = 10,):
+def train_model(model, train_loader, valid_loader, device, phase1_epochs: int = 5, phase2_epochs: int = 10, ):
     criterion = nn.CrossEntropyLoss()
 
     best_acc = 0.0
@@ -297,4 +298,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
