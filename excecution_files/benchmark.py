@@ -24,9 +24,9 @@ from generate_data.generate_data_for_gate import smart_resize
 # 1. Configuration & Global Paths
 # ----------------------------------------
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-# Target a specific test folder (e.g., testing how well it handles just low_light)
-TEST_FOLDER = os.path.join(PROJECT_ROOT, "data", "omer", "low_light")
-OUTPUT_CSV = os.path.join(PROJECT_ROOT, "pipeline_comparison_low_light_omer.csv")
+# Target a specific test folder (e.g., testing how well it handles )
+TEST_FOLDER = os.path.join(PROJECT_ROOT, "data","system_test", "yoav", "motion_blur")
+OUTPUT_CSV = os.path.join(PROJECT_ROOT, "pipeline_comparison_motion_yoav.csv")
 
 MODEL_PATHS = {
     "yolo": os.path.join(PROJECT_ROOT, "models", "yolov8n-face.pt"),
@@ -38,7 +38,7 @@ MODEL_PATHS = {
 # -----------------------------------------
 # PERFORMANCE BENCHMARK SUITE
 # Runs a head-to-head comparison between a standard AI pipeline
-# (YOLO -> ResNet) and your proprietary Gated Pipeline.
+# (YOLO -> ResNet) and the proprietary Gated Pipeline.
 # It tracks time cost, accuracy gains, and logs everything to a CSV.
 # -----------------------------------------
 class PipelineBenchmark:
@@ -265,7 +265,7 @@ class PipelineBenchmark:
             plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
             plt.title('Gate Decisions Breakdown')
             plt.axis('equal') 
-            plt.savefig('gate_decisions_pie_low_light_omer.png')
+            plt.savefig('gate_decisions_pie_motion_yoav.png')
             print("\nPie chart saved as 'gate_decisions_pie.png'. Closing the popup window will end the script.")
             plt.show() 
 

@@ -19,7 +19,7 @@ class DynamicLowLightAgent:
     def _get_dynamic_params(self, l_channel):
         # Calculates how aggressively to fix the image.
         avg_brightness = np.mean(l_channel)
-        print("avg_brightness:", avg_brightness)
+        #print("avg_brightness:", avg_brightness)
 
         # X-axis: The brightness thresholds
         brightness_levels = [0, 20, 30, 40, 80, 100, 255]
@@ -136,8 +136,8 @@ def main():
     agent = DynamicLowLightAgent()
 
     print("Running batch process...")
-    input_folder = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset\real_images_omer\low_light"
-    output_folder = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset\omer_after_agent"
+    input_folder = r"C:\Users\Your0124\final_project\Organized_project\data\system_test\yoav\low_light"
+    output_folder = r"C:\Users\Your0124\final_project\Organized_project\data\system_test\yoav\low_light1"
 
     agent.process_directory(input_folder, output_folder)
 

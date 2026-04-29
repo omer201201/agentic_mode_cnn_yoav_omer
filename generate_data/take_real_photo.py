@@ -26,7 +26,7 @@ for folder in FOLDERS.values():
 # 2. Pre-Processing Utilities
 # ----------------------------------------
 def smart_resize(img, target_size=224):
-    #Ensures the face crop matches your synthetic FFHQ data exactly.
+    #Ensures the face crop matches the synthetic FFHQ data exactly.
     h, w = img.shape[:2]
     interp = cv2.INTER_CUBIC if (h < target_size or w < target_size) else cv2.INTER_AREA
     return cv2.resize(img, (target_size, target_size), interpolation=interp)

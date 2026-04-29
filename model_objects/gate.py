@@ -98,7 +98,7 @@ class AdaptiveGate:
             except:
                 print("️ Warning: Could not load weights. Using random weights.")
 
-        # Transform for the CNN (The Gate sees 128X128 regardless of input size)
+        # Transform for the CNN (The Gate sees 224x224 regardless of input size)
         self.transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
@@ -131,17 +131,18 @@ class AdaptiveGate:
 
         # Hard Logic for tiny faces low res check
         h, w = face_crop.shape[:2]
-        if h < 40 or w < 40:
+        if h < 100 or w < 100:
+            print("h,w:", h,w)
             return 100, "low_res"
 
         # 2. LOW LIGHT CHECK (Brightness)
         # Convert to LAB to isolate perceptual lightness from color.
-        # This matches the logic you already use in your LowLightAgent.
         lab = cv2.cvtColor(face_crop, cv2.COLOR_BGR2LAB)
         l_channel, _, _ = cv2.split(lab)
         avg_brightness = np.mean(l_channel)
 
-        if avg_brightness < 45:  # Tune this based on your dataset
+        if avg_brightness < 20:
+            print("avg_brightness:", avg_brightness)
             return 100 , "low_light"
         
         gray = cv2.cvtColor(face_crop, cv2.COLOR_BGR2GRAY)
@@ -150,10 +151,11 @@ class AdaptiveGate:
         # This smooths out minor sensor noise without destroying real structural edges.
         smoothed_gray = cv2.GaussianBlur(gray, (3, 3), 0)
         laplacian_var = cv2.Laplacian(smoothed_gray, cv2.CV_64F).var()
-        '''
-        if laplacian_var < 30:  # Lower variance = fewer sharp edges = blurry
-            return 100 , "motion_blur"
-        '''
+
+        #if laplacian_var < 15:  # Lower variance = fewer sharp edges = blurry
+        #   print("laplacian_var:", laplacian_var)
+        #  return 100 , "motion_blur"
+
         # --- DEEP LEARNING PATHWAY ---
         # STEP 1: Apply Smart Resizing
         processed_face = self.smart_resize(face_crop, target_size=224)

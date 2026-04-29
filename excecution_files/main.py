@@ -21,7 +21,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 MODEL_PATHS = {
     "yolo": os.path.join(PROJECT_ROOT, "models", "yolov8n-face.pt"),
     "resnet": os.path.join(PROJECT_ROOT, "models", "resnet18_11.pt"),
-    "gate": os.path.join(PROJECT_ROOT, "models", "gate_model_best_3.pth"),
+    "gate": os.path.join(PROJECT_ROOT, "models", "gate_model_best_7.pth"),
     "mapping": os.path.join(PROJECT_ROOT, "models", "class_mapping.json"),
     "sr_pb": os.path.join(PROJECT_ROOT, "models", "ESPCN_x3.pb")
 }
@@ -46,7 +46,7 @@ class IntegratedGate:
         with open(MODEL_PATHS["mapping"], 'r') as f:
             self.classes = [k for k, v in sorted(json.load(f).items(), key=lambda x: x[1])]
 
-        # 4. Build the ResNet architecture and inject your custom weights
+        # 4. Build the ResNet architecture and inject the custom weights
         self.id_model = build_model(num_classes=len(self.classes))
         self.id_model.load_state_dict(torch.load(MODEL_PATHS["resnet"], map_location=self.device))
         self.id_model.to(self.device).eval()

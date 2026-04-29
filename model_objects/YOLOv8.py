@@ -153,7 +153,6 @@ def Yolo_with_image(image_path, model_path):
             return
 
         # 1. Run Detection
-        # (Change 'frame' to 'sharp_img' below if you want the detector to use the sharpened version)
         results = detector.detect(frame)
         print(f"Found {len(results)} faces.")
 

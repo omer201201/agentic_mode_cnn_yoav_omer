@@ -1,11 +1,13 @@
 import cv2
 import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from model_objects.YOLOv8 import FaceDetector  # Uses your specific detector class
 from generate_data_for_gate import letterbox_resize
 
 def prepare_resnet_dataset(input_folder, output_folder, target_size=(224, 224)):
     # Initialize your detector with the safe padding you defined
-    detector = FaceDetector(model_path=r"C:\Users\yoavt\PycharmProjects\final_projact\models\yolov8n-face.pt")
+    detector = FaceDetector(model_path=r"C:\Users\Your0124\final_project\Organized_project\models\yolov8n-face.pt")
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -41,6 +43,6 @@ def prepare_resnet_dataset(input_folder, output_folder, target_size=(224, 224)):
 
 
 # Usage
-raw_data_path = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset\yoav_20.4"
-processed_data_path = r"C:\Users\yoavt\PycharmProjects\final_projact\data\resnet dataset\yoav_20.4"
+raw_data_path = r"C:\Users\Your0124\final_project\Organized_project\data\system_test\omer\test_yolo"
+processed_data_path = r"C:\Users\Your0124\final_project\Organized_project\data\system_test\omer\test_yolo"
 prepare_resnet_dataset(raw_data_path, processed_data_path)

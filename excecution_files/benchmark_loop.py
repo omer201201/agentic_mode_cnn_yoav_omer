@@ -23,7 +23,7 @@ from generate_data.generate_data_for_gate import smart_resize
 # without throwing directory errors.
 # ----------------------------------------
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-BASE_DIR = os.path.join(PROJECT_ROOT, "data", "yoav")
+BASE_DIR = os.path.join(PROJECT_ROOT, "data","system_test", "yoav")
 
 MODEL_PATHS = {
     "yolo": os.path.join(PROJECT_ROOT, "models", "yolov8n-face.pt"),
@@ -107,7 +107,7 @@ class PipelineBenchmark:
             "Conf_Gain", "Time_Cost(ms)"
         ]
 
-        image_files = [f for f in os.listdir(test_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+        image_files = [f for f in os.listdir(test_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg', ".HEIC"))]
         print(f"\nTesting {len(image_files)} Images in '{condition_name}' folder...")
 
         # --- Data Tracking Variables ---
@@ -288,7 +288,7 @@ class PipelineBenchmark:
 if __name__ == "__main__":
     benchmark = PipelineBenchmark()
 
-    # List the exact folder names shown in your image
+    # List the exact folder names
     folders_to_test = ["low_light", "low_res", "motion_blur", "normal"]
 
     for folder_name in folders_to_test:

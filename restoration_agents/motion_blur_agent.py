@@ -59,7 +59,7 @@ class MotionBlurAgent:
 
             # 3b. cv2.addWeighted blends two images together.
             # The math happening here is: Sharpened = Original + (Original - Blurred) * Amount
-            # By subtracting the blurred version from the original, you are left with ONLY the edges.
+            # By subtracting the blurred version from the original, we are left with ONLY the edges.
             # We then add those edges back into the original image, effectively "boosting" the sharpness.
             sharpened = cv2.addWeighted(face_crop, 1.0 + dynamic_amount, blurred, -dynamic_amount, 0)
 
@@ -73,8 +73,8 @@ def main():
     # 1. Initialize the Agent
     agent = MotionBlurAgent()
 
-    # 2. Path to your REAL blurry image
-    img_path = r"C:\Users\Your0124\final_project\Organized_project\data\omer\motion_blur\omer_motion_blur_363.jpg"
+    # 2. Path to the REAL blurry image
+    img_path = r"C:\Users\Your0124\final_project\Organized_project\data\system_test\yoav\motion_blur\IMG_8317.jpg"
 
     if not os.path.exists(img_path):
         print(f" Error: Image not found at {img_path}")

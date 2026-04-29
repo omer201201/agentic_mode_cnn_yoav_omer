@@ -11,7 +11,7 @@ from model_objects.gate import SimpleGateCNN
 
 # ----------------------------------------
 # 1. Data Loading
-# PURPOSE: This section handles loading your images from the hard drive,
+# This section handles loading images from the hard drive,
 # standardizing their size/colors, and grouping them into batches so the GPU
 # can process them efficiently.
 # ----------------------------------------
