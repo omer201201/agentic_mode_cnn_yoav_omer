@@ -96,7 +96,7 @@ class AdaptiveGate:
             except:
                 print("️ Warning: Could not load weights. Using random weights.")
 
-        # Transform for the CNN (The Gate sees 128X128 regardless of input size)
+        # Transform for the CNN (The Gate sees 224X224 regardless of input size)
         self.transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
