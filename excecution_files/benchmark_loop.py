@@ -23,7 +23,7 @@ from generate_data.generate_data_for_gate import smart_resize
 # without throwing directory errors.
 # ----------------------------------------
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-BASE_DIR = os.path.join(PROJECT_ROOT, "data","system_test", "yoav")
+BASE_DIR = os.path.join(PROJECT_ROOT, "data","system_test", "other")
 
 MODEL_PATHS = {
     "yolo": os.path.join(PROJECT_ROOT, "models", "yolov8n-face.pt"),
@@ -199,6 +199,7 @@ class PipelineBenchmark:
                     elif base_is_correct and gate_is_correct:
                         conf_changes_both_right.append(conf_diff)
 
+
                     # Console Output for Live Tracking
                     print(f"[{filename[:10]} (Face {coords})] {quality.upper():<10} | Base: {base_conf:.2f} | Gate: {gate_conf:.2f}")
 
@@ -279,7 +280,7 @@ class PipelineBenchmark:
             plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
             plt.title(f'Gate Decisions Breakdown ({condition_name})')
             plt.axis('equal')
-            pie_filename = f'gate_decisions_pie_{condition_name}_yoav.png'
+            pie_filename = f'gate_decisions_pie_{condition_name}_other.png'
             plt.savefig(pie_filename)
             print(f"\nPie chart saved automatically as '{pie_filename}'.")
             plt.close()
@@ -305,7 +306,7 @@ if __name__ == "__main__":
             continue
 
         # 3. Create a unique CSV name for this specific test
-        csv_name = f"pipeline_comparison_{folder_name}_yoav.csv"
+        csv_name = f"pipeline_comparison_{folder_name}_other.csv"
 
         # 4. Run the simulation
         benchmark.run_benchmark(test_folder=folder_path, output_csv=csv_name, condition_name=folder_name)

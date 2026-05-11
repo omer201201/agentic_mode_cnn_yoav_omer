@@ -183,36 +183,31 @@ class IntegratedGate:
             # STEP 1: Detect Faces (YOLO)
             results = self.detector.detect(frame, expand_ratio=0.40)
 
-            for res in results:
+            # Loop through EVERY face found in the image
+            for idx, res in enumerate(results):
 
                 face = res["crop"]
-                coords = res["coords"]
+                # We don't need 'coords' for drawing anymore because we are drawing on the crop itself
 
                 # STEP 2: The Gate Decision
                 gate_conf, quality = self.gate.process(face)
 
                 # STEP 3: Route to Correct Agent
                 if quality == "low_light":
-                    print("low_light")
                     fixed_face = self.low_light_agent.process(face)
                 elif quality == "low_res":
-                    print("low_res")
                     fixed_face = self.super_res_agent.process(face)
                 elif quality == "motion_blur":
-                    print("motion_blur")
                     fixed_face = self.motion_blur_agent.process(face)
                 else:
-                    fixed_face = face  # "normal" class
-                    print("normal")
+                    fixed_face = face.copy()  # "normal" class
 
                 # STEP 4: Identify Person (ResNet)
                 input_face = self.id_letterbox(fixed_face, target_size=224)
-
                 input_face_rgb = cv2.cvtColor(input_face, cv2.COLOR_BGR2RGB)
 
-                tensor = torch.from_numpy(np.array(input_face_rgb)).permute(2, 0, 1).float().unsqueeze(0).to(self.device) / 255.0
-
-                # Apply ImageNet Normalization
+                tensor = torch.from_numpy(np.array(input_face_rgb)).permute(2, 0, 1).float().unsqueeze(0).to(
+                    self.device) / 255.0
                 tensor = (tensor - self.mean) / self.std
 
                 with torch.no_grad():
@@ -226,37 +221,38 @@ class IntegratedGate:
                 else:
                     person_name = self.classes[pred.item()]
 
-                # --- End Performance Timer ---
-                t_end = time.time()
-                total_time = t_end - t_start
-                print(f"️ Total Pipeline Time: {total_time:.4f} sec")
-
-                # --- STEP 5: Robust Labeling ---
+                # --- STEP 5: Robust Labeling on the CROP ---
                 id_percent = id_conf.item() * 100
                 label = f"{person_name} ({id_percent:.1f}%)"
                 mode_text = f"Mode: {quality} ({gate_conf:.1f}%)"
 
                 color = (0, 255, 0) if person_name not in ["other", "Unknown"] else (0, 0, 255)
 
-                cv2.rectangle(frame, (coords[0], coords[1]), (coords[2], coords[3]), color, 2)
+                # Get the dimensions of the cropped face
+                h, w = fixed_face.shape[:2]
 
+                # 1. Draw a border exactly around the edges of the cropped face
+                cv2.rectangle(fixed_face, (0, 0), (w, h), color, 4)
 
-                if coords[1] < 60:
-                    text_y_base = coords[1] + 25
-                else:
-                    text_y_base = coords[1] - 1
+                # 2. Draw background plate for text at the top of the crop so it's readable
+                cv2.rectangle(fixed_face, (0, 0), (w, 40), (0, 0, 0), -1)
 
-                # 4. Draw the text labels
-                cv2.putText(frame, label, (coords[0] + 5, text_y_base),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
-                cv2.putText(frame, mode_text, (coords[0] + 5, text_y_base + 20),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+                # 3. Draw the text labels starting at the top-left of the crop (x=5, y=15)
+                cv2.putText(fixed_face, label, (5, 15),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                cv2.putText(fixed_face, mode_text, (5, 35),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
 
+                # --- SAVE INSIDE THE LOOP ---
+                # If an image has multiple faces, it saves them as face0_img.jpg, face1_img.jpg, etc.
+                save_path = os.path.join(output_folder, f"result_face{idx}_{filename}")
+                cv2.imwrite(save_path, fixed_face)
+                print(f"Saved: {save_path}")
 
-            # Save the result to new folder
-            save_path = os.path.join(output_folder, f"result_{filename}")
-            cv2.imwrite(save_path, frame)
-            print(f"Saved: {save_path}")
+            # --- End Performance Timer ---
+            t_end = time.time()
+            total_time = t_end - t_start
+            print(f"Total Pipeline Time: {total_time:.4f} sec")
 
         print(f"\n All results saved in the '{output_folder}' folder.")
 
