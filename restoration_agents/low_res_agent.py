@@ -3,7 +3,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import numpy as np
-
+from tqdm import tqdm
 # ----------------------------------------
 # 1. Super Resolution Agent Definition
 # PURPOSE: This agent receives low-resolution face crops and uses a lightweight
@@ -62,36 +62,57 @@ class SuperResAgent:
 
         return result
 
+    def process_directory(self, input_dir, output_dir):
+        if not os.path.exists(input_dir):
+            print(f"Error: Input directory '{input_dir}' does not exist.")
+            return
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.JPG', '.JPEG', '.PNG')
+        image_files = [f for f in os.listdir(input_dir) if f.endswith(valid_extensions)]
+
+        if not image_files:
+            print(f"No images found in {input_dir}.")
+            return
+
+        print(f"Found {len(image_files)} images. Starting Super Resolution batch process...")
+
+        for filename in tqdm(image_files, desc="Upscaling Images"):
+            img_path = os.path.join(input_dir, filename)
+
+            img = cv2.imread(img_path)
+            if img is None:
+                continue
+
+            try:
+                # Apply Super Resolution
+                upscaled_img = self.process(img)
+
+                # Save the enhanced image
+                save_path = os.path.join(output_dir, filename)
+                cv2.imwrite(save_path, upscaled_img)
+            except Exception as e:
+                print(f"\nError processing {filename}: {e}")
+
+        print(f"\nFinished processing! All images saved to: {output_dir}")
 
 
 def main():
-    print(" Testing Better Super Resolution")
-
+    print("Testing Super Resolution Agent")
+    # 1. Initialize the Agent
     try:
         agent = SuperResAgent(model_path=MODEL_PATH["Espcn"], scale=3, algo_name="espcn")
     except Exception as e:
         print(e)
         return
 
-    # Load  low-res image
-    img_path = r"C:\Users\Your0124\final_project\Organized_project\data\yoav\low_res\yoav_low_res_55.jpg"
-    if not os.path.exists(img_path):
-        print("Image not found")
-        return
+    print("\n--- Running Batch Process ---")
+    input_folder = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\generate_data\other\train\low_res"
+    output_folder = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\generate_data\other\train\low_res"
 
-    original = cv2.imread(img_path)
-    upscaled = agent.process(original)
-
-    # Visualization Code
-    h, w = upscaled.shape[:2]
-
-    original_resized = cv2.resize(original, (w, h),interpolation=cv2.INTER_NEAREST)
-    #Nearest for "pixelated" look comparison
-
-    cv2.imshow("Original (Pixelated) vs ESPCN (Sharp)", np.hstack((original_resized, upscaled)))
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
+    agent.process_directory(input_folder, output_folder)
 
 if __name__ == "__main__":
     main()

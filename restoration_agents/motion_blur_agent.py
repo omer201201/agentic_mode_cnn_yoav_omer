@@ -3,7 +3,7 @@ import numpy as np
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
+from tqdm import tqdm
 
 # ----------------------------------------
 # 1. Motion Blur Agent Definition
@@ -67,43 +67,56 @@ class MotionBlurAgent:
         # If the score was higher than the threshold, return the original image untouched.
         return face_crop
 
+    def process_directory(self, input_dir, output_dir):
+        if not os.path.exists(input_dir):
+            print(f"Error: Input directory '{input_dir}' does not exist.")
+            return
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.JPG', '.JPEG', '.PNG')
+        image_files = [f for f in os.listdir(input_dir) if f.endswith(valid_extensions)]
+
+        if not image_files:
+            print(f"No images found in {input_dir}.")
+            return
+
+        print(f"Found {len(image_files)} images. Starting Motion Blur batch process...")
+
+        for filename in tqdm(image_files, desc="Deblurring Images"):
+            img_path = os.path.join(input_dir, filename)
+
+            img = cv2.imread(img_path)
+            if img is None:
+                continue
+
+            try:
+                # Apply deblurring
+                fixed_img = self.process(img)
+
+                # Save the enhanced image
+                save_path = os.path.join(output_dir, filename)
+                cv2.imwrite(save_path, fixed_img)
+            except Exception as e:
+                print(f"\nError processing {filename}: {e}")
+
+        print(f"\nFinished processing! All images saved to: {output_dir}")
+
+
 def main():
-    print("---  Testing Motion Blur Agent on Real Data ---")
+    print("--- Testing Motion Blur Agent ---")
 
     # 1. Initialize the Agent
     agent = MotionBlurAgent()
 
-    # 2. Path to the REAL blurry image
-    img_path = r"C:\Users\Your0124\final_project\Organized_project\data\system_test\yoav\motion_blur\IMG_8317.jpg"
+    print("\n--- Running Batch Process ---")
 
-    if not os.path.exists(img_path):
-        print(f" Error: Image not found at {img_path}")
-        return
+    input_folder = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\generate_data\other"
+    output_folder = r"C:\Users\Your0124\pycharm_project_test\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\agentic_mode_cnn_yoav_omer-Organized_Project_12-04-2026\Organized_project_13_4\generate_data\other"
 
-    # 3. Load the real blurry image
-    blurry_img = cv2.imread(img_path)
-    if blurry_img is None: return
+    agent.process_directory(input_folder, output_folder)
 
-    # 4. Run the Agent (Fix the blur)
-    result = agent.process(blurry_img)
-
-    # 5. Visual Comparison (Real Blur vs Fixed)
-    h, w = blurry_img.shape[:2]
-    # Resize only for display purposes
-    display_blurry = cv2.resize(blurry_img, (224, 224))
-    display_fixed = cv2.resize(result, (224, 224))
-
-    # Add Labels
-    cv2.putText(display_blurry, "before", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-    cv2.putText(display_fixed, "Agent Fixed", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-
-    # Stack Side-by-Side
-    comparison = np.hstack((display_blurry, display_fixed))
-
-    print(" Displaying results... (Press any key to close)")
-    cv2.imshow("Motion Blur Correction", comparison)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()

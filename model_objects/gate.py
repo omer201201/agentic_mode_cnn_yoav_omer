@@ -132,7 +132,7 @@ class AdaptiveGate:
         # Hard Logic for tiny faces low res check
         h, w = face_crop.shape[:2]
         if h < 100 or w < 100:
-            print("h,w:", h,w)
+            #print("h,w:", h,w)
             return 100, "low_res"
 
         # 2. LOW LIGHT CHECK (Brightness)
@@ -142,7 +142,7 @@ class AdaptiveGate:
         avg_brightness = np.mean(l_channel)
 
         if avg_brightness < 20:
-            print("avg_brightness:", avg_brightness)
+            #print("avg_brightness:", avg_brightness)
             return 100 , "low_light"
         
         gray = cv2.cvtColor(face_crop, cv2.COLOR_BGR2GRAY)
