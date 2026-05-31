@@ -56,7 +56,7 @@ class SuperResAgent:
         gaussian = cv2.GaussianBlur(result, (0, 0), 2.0)
 
         # Blend the original upscaled image with the blurred version.
-        # Formula: (original * 1.5) + (blurred * -0.5) + 0
+        # Formula: (original * 1.5) + (blurred * -0.5) + 0 ==Original + 0.5 * (Original - Blurred)
         # By subtracting a fraction of the blurred image, we isolate and boost the edge details.
         result = cv2.addWeighted(result, 1.5, gaussian, -0.5, 0)
 
