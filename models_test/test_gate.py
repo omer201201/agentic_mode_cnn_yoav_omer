@@ -12,7 +12,7 @@ from model_objects.gate import AdaptiveGate
 # --- CONFIGURATION ---
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 MODEL_PATH = {
-    "GATE_WEIGHTS" : os.path.join(PROJECT_ROOT, "models", "gate_model_best_7.pth")
+    "GATE_WEIGHTS" : os.path.join(PROJECT_ROOT, "models", "gate_model_best_8.pth")
 }
 
 def run_gate_pipeline():

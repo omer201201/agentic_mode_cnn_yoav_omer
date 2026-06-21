@@ -16,7 +16,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 MODEL_PATHS = {
     "yolo": os.path.join(PROJECT_ROOT, "models", "yolov8n-face.pt"),
-    "resnet": os.path.join(PROJECT_ROOT, "models", "resnet18_11.pt"),
+    "resnet": os.path.join(PROJECT_ROOT, "models", "resnet18_15.pt"),
     "mapping": os.path.join(PROJECT_ROOT, "models", "class_mapping.json")
 }
 # ---------------------------------------------------------

@@ -1,0 +1,101 @@
+Image,Face_Index,BASE_Name,BASE_Conf,BASE_Time(ms),Gate Decision,GATE_Name,GATE_Conf,GATE_Time(ms),Conf_Gain,Time_Cost(ms)
+yoav_low_res (53).JPG,"(1437, 2014, 1515, 2092)",yoav,0.8638,17.68,low_res,yoav,0.9636,30.12,9.99,12.44
+yoav_low_res (34).jpg,"(0, 0, 224, 224)",other,0.7776,18.89,low_res,other,0.6501,127.68,-12.75,108.79
+yoav_low_res (85).JPG,"(1585, 1930, 1669, 2014)",yoav,0.9841,17.65,low_res,yoav,0.9495,32.13,-3.47,14.48
+yoav_low_res (65).JPG,"(1426, 1927, 1498, 1999)",yoav,0.9608,17.74,low_res,yoav,0.9691,28.21,0.82,10.47
+yoav_low_res (9).jpg,"(0, 0, 224, 224)",other,0.7996,10.52,low_res,other,0.8148,120.67,1.52,110.15
+yoav_low_res (13).jpg,"(0, 0, 224, 224)",yoav,0.9880,18.12,low_res,yoav,0.9943,127.55,0.62,109.43
+yoav_low_res (33).jpg,"(0, 0, 224, 224)",yoav,0.6446,18.09,low_res,yoav,0.7191,129.67,7.46,111.59
+yoav_low_res (73).JPG,"(1351, 1714, 1421, 1784)",yoav,0.9998,17.68,low_res,yoav,1.0000,28.35,0.01,10.67
+yoav_low_res (83).JPG,"(1578, 1920, 1670, 2012)",yoav,0.9687,17.75,low_res,yoav,0.6583,35.95,-31.04,18.20
+yoav_low_res (91).JPG,"(1520, 1902, 1606, 1988)",yoav,0.9997,17.66,low_res,yoav,0.9991,33.49,-0.07,15.83
+yoav_low_res (88).JPG,"(1387, 1918, 1475, 2006)",yoav,0.8026,17.74,low_res,yoav,0.7446,34.17,-5.80,16.43
+yoav_low_res (69).JPG,"(1560, 1749, 1638, 1827)",yoav,0.9964,17.70,low_res,yoav,0.9967,30.19,0.03,12.50
+yoav_low_res (22).jpg,"(0, 0, 224, 224)",other,0.6672,18.18,low_res,Unknown,0.5115,129.44,-15.57,111.26
+yoav_low_res (20).jpg,"(0, 0, 224, 224)",yoav,0.9289,18.46,low_res,yoav,0.9563,132.70,2.74,114.24
+yoav_low_res (51).JPG,"(1502, 2024, 1576, 2098)",yoav,0.9913,17.68,low_res,yoav,0.9951,29.81,0.38,12.12
+yoav_low_res (87).JPG,"(1503, 1926, 1593, 2016)",yoav,0.9867,17.76,low_res,yoav,0.9482,34.79,-3.84,17.03
+yoav_low_res (7).jpg,"(0, 0, 224, 224)",yoav,0.9280,18.23,low_res,yoav,0.9483,127.88,2.03,109.64
+yoav_low_res (70).JPG,"(1546, 1701, 1616, 1771)",yoav,0.9997,17.69,low_res,yoav,0.9991,28.44,-0.06,10.76
+yoav_low_res (1).jpg,"(0, 3, 224, 224)",yoav,0.9965,18.90,low_res,yoav,0.9975,131.94,0.10,113.03
+yoav_low_res (45).jpg,"(0, 0, 224, 224)",yoav,0.9054,12.60,motion_blur,Unknown,0.5121,19.17,-39.33,6.57
+yoav_low_res (50).jpg,"(0, 0, 224, 224)",other,0.8759,10.28,low_res,other,0.7540,120.30,-12.19,110.02
+yoav_low_res (84).JPG,"(1598, 1940, 1690, 2032)",yoav,0.9988,17.76,low_res,yoav,0.9930,35.73,-0.58,17.97
+yoav_low_res (46).jpg,"(0, 0, 224, 224)",yoav,0.9937,18.18,motion_blur,yoav,0.9561,33.54,-3.77,15.37
+yoav_low_res (15).jpg,"(0, 0, 224, 224)",yoav,0.9335,10.36,low_res,yoav,0.9709,124.38,3.73,114.01
+yoav_low_res (6).jpg,"(0, 0, 224, 224)",yoav,0.9382,18.47,low_res,yoav,0.9476,128.16,0.95,109.70
+yoav_low_res (3).jpg,"(0, 0, 224, 224)",yoav,0.7222,18.02,low_res,yoav,0.8310,129.29,10.88,111.27
+yoav_low_res (19).jpg,"(0, 0, 224, 224)",yoav,0.8796,10.21,low_res,yoav,0.8983,120.06,1.87,109.84
+yoav_low_res (29).jpg,"(0, 0, 224, 224)",yoav,0.9009,18.46,low_res,yoav,0.9141,127.12,1.33,108.66
+yoav_low_res (38).jpg,"(0, 0, 224, 224)",yoav,0.9561,18.20,motion_blur,Unknown,0.5590,31.48,-39.71,13.28
+yoav_low_res (26).jpg,"(0, 0, 224, 224)",yoav,0.9049,18.07,low_res,yoav,0.9242,130.01,1.93,111.94
+yoav_low_res (93).JPG,"(1574, 1972, 1676, 2074)",Unknown,0.3583,17.69,low_light,other,0.6621,29.60,30.38,11.91
+yoav_low_res (37).jpg,"(0, 0, 224, 224)",Unknown,0.5474,17.46,low_res,Unknown,0.5230,126.90,-2.44,109.44
+yoav_low_res (74).JPG,"(1353, 1803, 1413, 1863)",yoav,0.7571,17.64,low_res,yoav,0.9158,25.28,15.87,7.64
+yoav_low_res (12).jpg,"(0, 0, 224, 224)",yoav,0.9257,18.24,low_res,yoav,0.9477,131.06,2.20,112.82
+yoav_low_res (8).jpg,"(0, 0, 224, 224)",yoav,0.6755,11.47,low_res,yoav,0.7182,121.52,4.28,110.04
+yoav_low_res (68).JPG,"(1505, 1809, 1583, 1887)",yoav,0.7873,17.73,low_res,yoav,0.8749,30.02,8.76,12.29
+yoav_low_res (4).jpg,"(0, 0, 224, 224)",yoav,0.8801,10.42,low_res,yoav,0.8915,121.99,1.15,111.57
+yoav_low_res (30).jpg,"(0, 0, 224, 224)",yoav,0.7570,17.89,low_res,yoav,0.8619,127.12,10.49,109.23
+yoav_low_res (86).JPG,"(1592, 1927, 1678, 2013)",yoav,0.9924,17.76,low_res,yoav,0.9970,33.48,0.46,15.72
+yoav_low_res (89).JPG,"(1405, 1908, 1495, 1998)",yoav,0.9841,17.67,low_res,yoav,0.6954,34.64,-28.87,16.97
+yoav_low_res (14).jpg,"(0, 0, 224, 224)",yoav,0.8295,17.52,low_res,yoav,0.9249,132.43,9.54,114.91
+yoav_low_res (39).jpg,"(0, 5, 224, 224)",yoav,0.7722,12.66,low_res,yoav,0.9009,120.49,12.88,107.83
+yoav_low_res (17).jpg,"(0, 0, 224, 224)",yoav,0.8207,17.96,low_res,yoav,0.8578,130.29,3.72,112.33
+yoav_low_res (25).jpg,"(0, 0, 224, 224)",yoav,0.9575,18.08,low_res,yoav,0.9709,130.47,1.33,112.39
+yoav_low_res (35).jpg,"(0, 0, 224, 224)",yoav,0.6081,10.02,low_res,yoav,0.7077,120.02,9.97,110.00
+yoav_low_res (28).jpg,"(0, 0, 224, 224)",yoav,0.9216,18.19,low_res,yoav,0.9399,127.41,1.83,109.22
+yoav_low_res (56).JPG,"(1507, 2035, 1579, 2107)",yoav,0.9529,17.65,low_res,yoav,0.9616,28.16,0.88,10.50
+yoav_low_res (24).jpg,"(0, 0, 224, 224)",Unknown,0.5515,18.19,low_res,Unknown,0.5916,129.46,4.01,111.27
+yoav_low_res (97).JPG,"(1247, 1761, 1331, 1845)",yoav,0.9991,17.67,low_res,yoav,0.9997,32.00,0.07,14.34
+yoav_low_res (27).jpg,"(0, 0, 224, 224)",yoav,0.9596,18.09,low_res,yoav,0.9855,129.21,2.59,111.11
+yoav_low_res (98).JPG,"(1328, 1810, 1422, 1904)",yoav,0.9903,17.70,low_res,yoav,0.9894,36.12,-0.09,18.41
+yoav_low_res (36).jpg,"(0, 0, 224, 224)",other,0.8880,18.36,low_res,other,0.7965,131.81,-9.15,113.45
+yoav_low_res (31).jpg,"(0, 0, 224, 224)",other,0.6804,18.51,low_res,Unknown,0.5149,128.25,-16.56,109.74
+yoav_low_res (92).JPG,"(1592, 1928, 1676, 2012)",yoav,0.9981,17.70,low_res,yoav,0.9913,31.74,-0.69,14.04
+yoav_low_res (62).JPG,"(1559, 1965, 1623, 2029)",other,0.6938,17.67,low_res,yoav,0.7157,26.52,2.19,8.85
+yoav_low_res (49).jpg,"(0, 6, 224, 224)",Unknown,0.5857,18.40,motion_blur,other,0.9558,35.85,37.01,17.45
+yoav_low_res (42).jpg,"(0, 2, 224, 224)",yoav,0.9806,13.47,low_res,yoav,0.9885,125.32,0.78,111.85
+yoav_low_res (48).jpg,"(0, 0, 224, 224)",yoav,0.9171,18.28,motion_blur,yoav,0.6975,33.52,-21.96,15.23
+yoav_low_res (55).JPG,"(1486, 2020, 1564, 2098)",yoav,0.9549,17.72,low_res,yoav,0.9578,30.23,0.29,12.51
+yoav_low_res (18).jpg,"(0, 0, 224, 224)",yoav,0.8583,9.58,low_res,yoav,0.9272,120.40,6.89,110.82
+yoav_low_res (11).jpg,"(0, 0, 224, 224)",Unknown,0.5678,18.44,low_res,yoav,0.6197,128.89,5.19,110.45
+yoav_low_res (32).jpg,"(0, 0, 224, 224)",other,0.8307,17.93,low_res,other,0.7621,127.17,-6.86,109.24
+yoav_low_res (21).jpg,"(0, 0, 224, 224)",yoav,0.9287,18.12,low_res,yoav,0.9106,127.44,-1.80,109.32
+yoav_low_res (99).JPG,"(1251, 1813, 1339, 1901)",yoav,0.9992,17.79,low_res,yoav,0.9785,34.14,-2.08,16.35
+yoav_low_res (5).jpg,"(0, 0, 224, 224)",yoav,0.9594,18.13,low_res,yoav,0.9797,129.54,2.03,111.42
+yoav_low_res (101).JPG,"(1505, 1783, 1597, 1875)",yoav,0.9931,10.04,low_res,yoav,0.9679,28.27,-2.52,18.23
+yoav_low_res (41).jpg,"(0, 4, 224, 224)",yoav,0.7657,17.99,low_res,yoav,0.8542,124.31,8.85,106.31
+yoav_low_res (96).JPG,"(1289, 1761, 1375, 1847)",yoav,0.9995,17.68,low_res,yoav,0.9995,33.60,0.00,15.92
+yoav_low_res (67).JPG,"(1610, 1869, 1690, 1949)",yoav,0.7678,9.98,low_res,yoav,0.8338,23.65,6.60,13.67
+yoav_low_res (82).JPG,"(1513, 1941, 1607, 2035)",yoav,0.8871,17.71,low_res,yoav,0.7057,36.18,-18.13,18.48
+yoav_low_res (57).JPG,"(1524, 2031, 1600, 2107)",yoav,0.9966,10.00,low_res,yoav,0.9984,22.20,0.18,12.20
+yoav_low_res (75).JPG,"(1443, 1840, 1511, 1908)",yoav,0.9909,17.73,low_res,yoav,0.9581,27.81,-3.28,10.08
+yoav_low_res (44).jpg,"(0, 0, 224, 224)",yoav,0.9097,18.27,motion_blur,Unknown,0.5326,33.84,-37.71,15.57
+yoav_low_res (94).JPG,"(1495, 1765, 1589, 1859)",yoav,0.9925,17.74,low_res,yoav,0.8472,36.13,-14.53,18.39
+yoav_low_res (95).JPG,"(1502, 1769, 1580, 1847)",yoav,0.9994,17.66,low_res,yoav,1.0000,30.44,0.06,12.78
+yoav_low_res (81).JPG,"(1398, 1851, 1458, 1911)",yoav,0.7764,17.68,low_res,yoav,0.9905,25.11,21.41,7.43
+yoav_low_res (16).jpg,"(0, 0, 224, 224)",yoav,0.9694,18.23,low_res,yoav,0.9797,136.22,1.03,117.99
+yoav_low_res (2).jpg,"(0, 0, 224, 224)",yoav,0.9148,10.64,low_res,yoav,0.9628,122.84,4.81,112.21
+yoav_low_res (40).jpg,"(0, 2, 224, 224)",yoav,0.7649,11.40,motion_blur,other,0.7622,26.29,-0.27,14.89
+yoav_low_res (60).JPG,"(1396, 1990, 1474, 2068)",yoav,0.9799,17.65,low_res,yoav,0.9983,30.11,1.84,12.46
+yoav_low_res (60).JPG,"(2767, 2108, 2851, 2192)",Unknown,0.4024,17.89,low_res,Unknown,0.4542,31.81,5.18,13.91
+yoav_low_res (47).jpg,"(0, 0, 224, 224)",yoav,0.9218,11.32,motion_blur,Unknown,0.5572,19.22,-36.46,7.90
+yoav_low_res (23).jpg,"(0, 0, 224, 224)",yoav,0.9634,13.55,low_res,yoav,0.9712,125.14,0.78,111.59
+yoav_low_res (10).jpg,"(0, 0, 224, 224)",other,0.8391,9.67,low_res,other,0.7890,117.95,-5.01,108.28
+yoav_low_res (43).jpg,"(0, 7, 224, 224)",yoav,0.8403,18.06,low_res,yoav,0.8783,128.98,3.80,110.92
+
+
+--- SUMMARY STATISTICS ---,
+Metric,Value
+Total Faces Processed,85
+Basic Pipeline Accuracy,82.35%
+Gated Pipeline Accuracy,78.82%
+Net Accuracy Change,-3.53%
+Average Time Basic (ms),16.39
+Average Time Gated (ms),78.13
+Time Cost of Gate (ms),61.74
+Flips: Bad to Good (Fixed),2
+Flips: Good to Bad (Ruined),5
+Avg Conf Change (Both Correct),+0.73%
+Avg Conf Change (Both Wrong),-0.19%

@@ -20,8 +20,8 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 MODEL_PATHS = {
     "yolo": os.path.join(PROJECT_ROOT, "models", "yolov8n-face.pt"),
-    "resnet": os.path.join(PROJECT_ROOT, "models", "resnet18_11.pt"),
-    "gate": os.path.join(PROJECT_ROOT, "models", "gate_model_best_7.pth"),
+    "resnet": os.path.join(PROJECT_ROOT, "models", "resnet18_15.pt"),
+    "gate": os.path.join(PROJECT_ROOT, "models", "gate_model_best_8.pth"),
     "mapping": os.path.join(PROJECT_ROOT, "models", "class_mapping.json"),
     "sr_pb": os.path.join(PROJECT_ROOT, "models", "ESPCN_x3.pb")
 }

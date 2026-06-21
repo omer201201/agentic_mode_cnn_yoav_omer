@@ -94,9 +94,15 @@ def build_model(num_classes: int):
     # 1. Load the architecture empty
     model = models.resnet18(weights=None)
 
-    # 2. Inject local pre-trained weights (Great for offline Jetson development!)
-    state_dict = torch.load(MODEL_PATH["ResNet18_Weights"], map_location="cpu")
-    model.load_state_dict(state_dict)
+    # 2. Inject local pre-trained ImageNet weights if available (used for training).
+    # At inference the caller overwrites these with the trained head weights right
+    # after, so a missing base file should not be fatal.
+    base_weights = MODEL_PATH["ResNet18_Weights"]
+    if os.path.exists(base_weights):
+        state_dict = torch.load(base_weights, map_location="cpu")
+        model.load_state_dict(state_dict)
+    else:
+        print(f"[build_model] ImageNet base not found at {base_weights} - skipping (fine for inference).")
 
     # 3. Replace the "Head"
     # ResNet normally outputs 1000 categories (dogs, cars, etc.). We rip off that

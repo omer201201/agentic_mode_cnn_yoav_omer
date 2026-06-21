@@ -1,0 +1,8 @@
+# Large assets — keep model weights in GitHub Releases, dataset out of git
+models/
+system_test/
+data/
+
+# Python
+__pycache__/
+*.pyc

@@ -27,8 +27,8 @@ BASE_DIR = os.path.join(PROJECT_ROOT, "data","system_test", "other")
 
 MODEL_PATHS = {
     "yolo": os.path.join(PROJECT_ROOT, "models", "yolov8n-face.pt"),
-    "resnet": os.path.join(PROJECT_ROOT, "models", "resnet18_11.pt"),
-    "gate": os.path.join(PROJECT_ROOT, "models", "gate_model_best_7.pth"),
+    "resnet": os.path.join(PROJECT_ROOT, "models", "resnet18_15.pt"),
+    "gate": os.path.join(PROJECT_ROOT, "models", "gate_model_best_8.pth"),
     "mapping": os.path.join(PROJECT_ROOT, "models", "class_mapping.json")
 }
 
