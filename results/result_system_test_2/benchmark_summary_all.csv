@@ -1,0 +1,13 @@
+Person_Condition,Faces,Base_Acc(%),Gate_Acc(%),Net_Change(%),Base_Time(ms),Gate_Time(ms)
+low_light_omer,123,19.51,71.54,+52.03,11.31,29.67
+low_res_omer,123,37.40,44.72,+7.32,7.96,75.15
+motion_blur_omer,115,19.13,32.17,+13.04,9.14,22.44
+normal_omer,96,98.96,98.96,+0.00,10.69,40.72
+low_light_yoav,122,96.72,99.18,+2.46,8.67,30.02
+low_res_yoav,127,72.44,76.38,+3.94,7.19,39.67
+motion_blur_yoav,132,93.18,97.73,+4.55,8.65,21.36
+normal_yoav,90,100.00,100.00,+0.00,9.41,26.92
+low_light_other,125,91.20,89.60,-1.60,7.67,14.16
+low_res_other,129,100.00,100.00,+0.00,7.73,84.18
+motion_blur_other,121,100.00,99.17,-0.83,8.93,15.68
+normal_other,130,100.00,99.23,-0.77,9.39,16.96
