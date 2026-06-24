@@ -1,5 +1,6 @@
 import sys
 import os
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import cv2
 import torch
@@ -23,7 +24,7 @@ from generate_data.generate_data_for_gate import smart_resize
 # without throwing directory errors.
 # ----------------------------------------
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-BASE_DIR = os.path.join(PROJECT_ROOT, "data","system_test", "other")
+BASE_DIR = os.path.join(PROJECT_ROOT, "data", "system_test-2", "other")
 
 MODEL_PATHS = {
     "yolo": os.path.join(PROJECT_ROOT, "models", "yolov8n-face.pt"),
@@ -31,6 +32,7 @@ MODEL_PATHS = {
     "gate": os.path.join(PROJECT_ROOT, "models", "gate_model_best_8.pth"),
     "mapping": os.path.join(PROJECT_ROOT, "models", "class_mapping.json")
 }
+
 
 # ------------------------------------------
 # MASTER BENCHMARK
@@ -74,8 +76,8 @@ class PipelineBenchmark:
 
     def run_inference_resnet(self, face_img):
 
-        #Runs the ResNet identification part only.
-        #Returns the Predicted Name & Confidence Score
+        # Runs the ResNet identification part only.
+        # Returns the Predicted Name & Confidence Score
 
         # Preprocess
         input_face = self.smart_resize(face_img, target_size=224)
@@ -92,7 +94,7 @@ class PipelineBenchmark:
             conf, pred = torch.max(prob, 1)
 
         # Unknown Threshold
-        if conf.item() < 0.60:
+        if conf.item() < 0.30:
             return "Unknown", conf.item()
         return self.classes[pred.item()], conf.item()
 
@@ -125,6 +127,11 @@ class PipelineBenchmark:
 
         base_correct_count = 0
         gate_correct_count = 0
+
+        # --- ADDED METRICS TRACKING VARIABLES ---
+        total_images_in_folder = len(image_files)
+        base_TP = base_FP = base_TN = base_FN = 0
+        gate_TP = gate_FP = gate_TN = gate_FN = 0
 
         # Open the CSV file and start streaming data
         with open(output_csv, mode='w', newline='') as f:
@@ -199,15 +206,46 @@ class PipelineBenchmark:
                     elif base_is_correct and gate_is_correct:
                         conf_changes_both_right.append(conf_diff)
 
+                    # --- EXTENDED METRICS TRACKING (Precision, Recall, TP/FP/TN/FN) ---
+                    # BASE
+                    if ground_truth in ["yoav", "omer"]:
+                        if base_name == ground_truth:
+                            base_TP += 1
+                        elif base_name in ["Unknown", "other"]:
+                            base_FN += 1
+                        else:
+                            base_FP += 1
+                            base_FN += 1
+                    else:  # ground_truth is 'other'
+                        if base_name in ["Unknown", "other"]:
+                            base_TN += 1
+                        else:
+                            base_FP += 1
+
+                    # GATE
+                    if ground_truth in ["yoav", "omer"]:
+                        if gate_name == ground_truth:
+                            gate_TP += 1
+                        elif gate_name in ["Unknown", "other"]:
+                            gate_FN += 1
+                        else:
+                            gate_FP += 1
+                            gate_FN += 1
+                    else:  # ground_truth is 'other'
+                        if gate_name in ["Unknown", "other"]:
+                            gate_TN += 1
+                        else:
+                            gate_FP += 1
 
                     # Console Output for Live Tracking
-                    print(f"[{filename[:10]} (Face {coords})] {quality.upper():<10} | Base: {base_conf:.2f} | Gate: {gate_conf:.2f}")
+                    print(
+                        f"[{filename[:10]} (Face {coords})] {quality.upper():<10} | Base: {base_conf:.2f} | Gate: {gate_conf:.2f}")
 
                     writer.writerow([
                         filename, coords, base_name,
                         f"{base_conf:.4f}", f"{base_time:.2f}", quality,
                         gate_name, f"{gate_conf:.4f}", f"{gate_time:.2f}",
-                        f"{conf_diff*100:.2f}", f"{gate_time - base_time:.2f}"
+                        f"{conf_diff * 100:.2f}", f"{gate_time - base_time:.2f}"
                     ])
 
         print(f"\nBenchmark Complete! Results saved to: {os.path.abspath(output_csv)}")
@@ -216,37 +254,71 @@ class PipelineBenchmark:
         if total_faces_processed > 0:
             avg_base_time = total_base_time / total_faces_processed
             avg_gate_time = total_gate_time / total_faces_processed
-            avg_right = (sum(conf_changes_both_right) / len(conf_changes_both_right) * 100) if conf_changes_both_right else 0
-            avg_wrong = (sum(conf_changes_both_wrong) / len(conf_changes_both_wrong) * 100) if conf_changes_both_wrong else 0
+            avg_right = (sum(conf_changes_both_right) / len(
+                conf_changes_both_right) * 100) if conf_changes_both_right else 0
+            avg_wrong = (sum(conf_changes_both_wrong) / len(
+                conf_changes_both_wrong) * 100) if conf_changes_both_wrong else 0
 
             base_accuracy = (base_correct_count / total_faces_processed) * 100
             gate_accuracy = (gate_correct_count / total_faces_processed) * 100
 
-            print("\n" + "="*40)
+            # --- CALCULATE ADDED METRICS ---
+            def calc_metrics(tp, fp, tn, fn):
+                total = tp + tn + fp + fn
+                acc = (tp + tn) / total if total > 0 else 0
+                prec = tp / (tp + fp) if (tp + fp) > 0 else 0
+                rec = tp / (tp + fn) if (tp + fn) > 0 else 0
+                f1 = 2 * (prec * rec) / (prec + rec) if (prec + rec) > 0 else 0
+                return acc * 100, prec * 100, rec * 100, f1 * 100
+
+            base_acc_calc, base_prec, base_rec, base_f1 = calc_metrics(base_TP, base_FP, base_TN, base_FN)
+            gate_acc_calc, gate_prec, gate_rec, gate_f1 = calc_metrics(gate_TP, gate_FP, gate_TN, gate_FN)
+
+            base_fps = 1000.0 / avg_base_time if avg_base_time > 0 else 0
+            gate_fps = 1000.0 / avg_gate_time if avg_gate_time > 0 else 0
+
+            # System Success Rate = Correct Identifications / Total Images Tested (Includes missed faces)
+            base_sys_success = (base_correct_count / total_images_in_folder) * 100 if total_images_in_folder > 0 else 0
+            gate_sys_success = (gate_correct_count / total_images_in_folder) * 100 if total_images_in_folder > 0 else 0
+
+            yolo_map_status = "N/A (Requires BBox GT)"
+
+            print("\n" + "=" * 40)
             print(f"     ANALYTICS: {condition_name.upper()}")
-            print("="*40)
+            print("=" * 40)
 
             print(f"1. Overall Success Rate (Accuracy):")
             print(f"   - Basic Pipeline: {base_accuracy:.1f}% ({base_correct_count}/{total_faces_processed})")
             print(f"   - Gated Pipeline: {gate_accuracy:.1f}% ({gate_correct_count}/{total_faces_processed})")
             print(f"   - Net Change: {gate_accuracy - base_accuracy:+.1f}%")
-            print("-"*40)
+            print("-" * 40)
 
             print(f"2. Prediction Flips (Ground Truth vs Model):")
             print(f"   - Bad to Good (Gate FIXED the prediction): {flips_bad_to_good}")
             print(f"   - Good to Bad (Gate RUINED the prediction): {flips_good_to_bad}")
-            print("-"*40)
+            print("-" * 40)
 
             print(f"3. Confidence Changes:")
             print(f"   - Both Correct: Average certainty change: {avg_right:+.2f}%")
             print(f"   - Both Wrong: Average certainty change: {avg_wrong:+.2f}%")
-            print("-"*40)
+            print("-" * 40)
 
             print(f"4. Processing Time (Averages):")
             print(f"   - Basic Pipeline: {avg_base_time:.2f} ms")
             print(f"   - Gated Pipeline: {avg_gate_time:.2f} ms")
             print(f"   - Time Difference (Cost of Gate): +{avg_gate_time - avg_base_time:.2f} ms")
-            print("="*40)
+            print("-" * 40)
+
+            print(f"5. Extended Metrics (Precision, Recall, F1):")
+            print(f"   - Basic Pipeline: Prec: {base_prec:.1f}%, Rec: {base_rec:.1f}%, F1: {base_f1:.1f}%")
+            print(f"   - Gated Pipeline: Prec: {gate_prec:.1f}%, Rec: {gate_rec:.1f}%, F1: {gate_f1:.1f}%")
+            print("-" * 40)
+
+            print(f"6. Throughput & System Success Rate:")
+            print(f"   - Basic Pipeline: {base_fps:.1f} FPS | Sys Success: {base_sys_success:.1f}%")
+            print(f"   - Gated Pipeline: {gate_fps:.1f} FPS | Sys Success: {gate_sys_success:.1f}%")
+            print(f"   - Face Detection MAP: {yolo_map_status}")
+            print("=" * 40)
 
             # Append Summary Table to the CSV
             with open(output_csv, mode='a', newline='') as f:
@@ -271,13 +343,29 @@ class PipelineBenchmark:
                 writer.writerow(["Avg Conf Change (Both Correct)", f"{avg_right:+.2f}%"])
                 writer.writerow(["Avg Conf Change (Both Wrong)", f"{avg_wrong:+.2f}%"])
 
+                # ADDED METRICS TO CSV
+                writer.writerow([])
+                writer.writerow(["--- EXTENDED METRICS ---", ""])
+                writer.writerow(["Base Precision", f"{base_prec:.2f}%"])
+                writer.writerow(["Gate Precision", f"{gate_prec:.2f}%"])
+                writer.writerow(["Base Recall", f"{base_rec:.2f}%"])
+                writer.writerow(["Gate Recall", f"{gate_rec:.2f}%"])
+                writer.writerow(["Base F1-Score", f"{base_f1:.2f}%"])
+                writer.writerow(["Gate F1-Score", f"{gate_f1:.2f}%"])
+                writer.writerow(["Base Throughput (FPS)", f"{base_fps:.2f}"])
+                writer.writerow(["Gate Throughput (FPS)", f"{gate_fps:.2f}"])
+                writer.writerow(["Base System Success Rate", f"{base_sys_success:.2f}%"])
+                writer.writerow(["Gate System Success Rate", f"{gate_sys_success:.2f}%"])
+                writer.writerow(["YOLO Mean Average Precision (MAP)", yolo_map_status])
+
         # --- Create and Save the Pie Chart ---
         labels = [k for k, v in gate_decisions.items() if v > 0]
         sizes = [v for k, v in gate_decisions.items() if v > 0]
 
         if sizes:
             plt.figure(figsize=(8, 6))
-            plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140, colors=['#ff9999','#66b3ff','#99ff99','#ffcc99'])
+            plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140,
+                    colors=['#ff9999', '#66b3ff', '#99ff99', '#ffcc99'])
             plt.title(f'Gate Decisions Breakdown ({condition_name})')
             plt.axis('equal')
             pie_filename = f'gate_decisions_pie_{condition_name}_other.png'
@@ -293,9 +381,9 @@ if __name__ == "__main__":
     folders_to_test = ["low_light", "low_res", "motion_blur", "normal"]
 
     for folder_name in folders_to_test:
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print(f" STARTING BENCHMARK FOR: {folder_name.upper()}")
-        print("="*60)
+        print("=" * 60)
 
         # 1. Build the full path to the specific folder
         folder_path = os.path.join(BASE_DIR, folder_name)
